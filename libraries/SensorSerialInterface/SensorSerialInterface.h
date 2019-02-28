@@ -53,6 +53,11 @@ protected:
 	// The number of supported profiles
 	int NumProfiles;
 	
+	// Methods to process individual terminal commands, to keep Update() reasonable
+	void SProcessCCommand(void);
+	void SProcessSCommand(void);
+	void SProcessWCommand(void);
+	
 public:
 	// Constructor
 	SensorSerialInterface (SensorConfigClass* theConfiguration);

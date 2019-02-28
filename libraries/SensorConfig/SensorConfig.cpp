@@ -161,3 +161,27 @@ void SensorConfigClass::SetWaterDetectThreshold(int newThreshold)
 		
 }
  
+// ------------------------------------------------------------------------------
+// Sets WifiSSID to the supplied value
+void SensorConfigClass::SetWifiSSID (char* newID)
+{
+    strncpy (TheConfiguration.WifiSSID, newID, WIFI_SSID_LEN);
+    Write();
+}
+		
+// ------------------------------------------------------------------------------
+// Sets Wifi password to the supplied value
+void SensorConfigClass::SetWifiPassword (char* newPassword)
+{
+    strncpy (TheConfiguration.WifiPassword, newPassword, WIFI_PASSWORD_LEN);
+    Write();
+}
+		
+// ------------------------------------------------------------------------------
+// Sets Wifi password to the supplied value
+void SensorConfigClass::SetIFTTTKey (char* newKey)
+{
+    strncpy (TheConfiguration.IFTTTKey, newKey, IFTTT_KEY_LEN);
+    Write();
+}
+		

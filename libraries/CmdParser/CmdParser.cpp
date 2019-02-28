@@ -1,5 +1,5 @@
 /*
-Copyright � 2011 Scott Henwood/shensicle photographic. All Rights Reserved.
+Copyright 2011 Scott Henwood/shensicle photographic. All Rights Reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
@@ -69,6 +69,8 @@ void CmdParser::Reset (void)
 // is more data remaining to parse.
 bool CmdParser::MoreDataAvailable (void)
 {
+    SkipWhitespace();
+    
 	if (CurrPos < StringPtr->length())
 	{
 		return (true);
@@ -178,4 +180,26 @@ void CmdParser::GetStringToWhitespace (char* theResult, unsigned maxLen)
              theResult[i++] = toupper (StringPtr->charAt(CurrPos++));
          }
      }      
+}
+
+// --------------------------------------------------------------
+// Method to return a command and its parameter. Returns 0x00 for
+// theCommand if either the command or the parameter are missing. 
+// Does not validate parameters.
+char CmdParser::GetCommandAndParameter (char* theParameter, unsigned maxParamLen)
+{
+    char theCommand = GetCommand();
+    
+    // If there is a command ...
+    if (theCommand != 0x00)
+    {
+        GetStringToWhitespace (theParameter, maxParamLen);
+        
+        // If there was no parameter, set the command back to 0x00
+        if (theParameter[0] == 0x00)
+        {
+            theCommand = 0x00;
+        }
+    }
+    return (theCommand);
 }

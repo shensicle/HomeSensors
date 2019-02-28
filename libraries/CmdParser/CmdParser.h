@@ -73,6 +73,12 @@ public:
 	// Return a string of length up to maxLen after skipping over leading whitespace and stopping at
     // trailing whitespace. Return 0x00 if there is no string on the command line.
     void GetStringToWhitespace (char* theResult, unsigned maxLen);
+    
+    // Method to return a command and its parameter. Returns 0x00 for
+    // theCommand if either the command or the parameter are missing. 
+    // Does not validate parameters.
+    char GetCommandAndParameter (char* theParameter, unsigned maxParamLen);
+
 
 };
 

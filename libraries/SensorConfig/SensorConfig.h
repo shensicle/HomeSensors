@@ -53,14 +53,23 @@ class SensorConfigClass
  	    // Return a pointer to our stored WifiSSID
   	    char* GetWifiSSID(void)
   	       { return (TheConfiguration.WifiSSID); }
+  	       
+  	    // Sets WifiSSID to the supplied value
+  	    void SetWifiSSID (char* newID);
 		
   	    // Return a pointer to our stored Wifi password
   	    char* GetWifiPassword(void)
   	       { return (TheConfiguration.WifiPassword); }
 		
+  	    // Sets Wifi password to the supplied value
+  	    void SetWifiPassword (char* newPassword);
+		
   	    // Return a pointer to our stored IFTTT key
   	    char* GetIFTTTKey(void)
   	       { return (TheConfiguration.IFTTTKey); }
+		
+  	    // Sets IFTTT API key to the supplied value
+  	    void SetIFTTTKey (char* newKey);
 		
   	    // Return a pointer to our own Board ID
   	    char* GetUUID(void)

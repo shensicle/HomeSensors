@@ -55,6 +55,172 @@ void SensorSerialInterface::Add (char inChar)
 }
 	
 // --------------------------------------------------------------------------- 
+// Process the S (set) command
+void SensorSerialInteface::ProcessSCommand(void)
+{
+    // First get the sensor ID - The only criterion is that it
+    // can't be blank.
+    Parser.GetStringToWhitespace (sensorID, UUID_LEN);
+      					
+    if (sensorID == 0x00)
+    {
+      	// 'S' command only - display current configuration
+      	Serial.println (F("\nCurrent configuration:"));
+      	Serial.print (F("Sensor ID: "); Serial.println (TheConfiguration->GetUUID());
+      	Serial.print (F("Water Sensor: ")); 
+      	if (TheConfiguration->HasWaterSensor())
+      	    Serial.println ("Yes");
+      	else
+      	    Serial.println ("No");
+
+       	Serial.print (F("Temperature Sensor: ")); 
+      	if (TheConfiguration->HasTemperatureSensor())
+      	    Serial.println ("Yes");
+      	else
+      	    Serial.println ("No");
+
+      	Serial.print (F("Warning Buzzer: ")); 
+      	if (TheConfiguration->HasBuzzer())
+      	    Serial.println ("Yes\n");
+      	else
+      	    Serial.println ("No\n");
+    }
+    else
+    {
+      	// Now start looking for individual characters that describe the
+      	// hardware this sensor has.
+      	char returnValue = Parser.GetChar();
+      						
+      	status = -1;
+      	while (returnValue != 0x00)
+      	{
+      		switch (toupper(returnValue))
+      		{
+      			case 'W':
+      				status = 0;
+      				hasWaterSensor = true;
+      				break;
+      							
+      			case 'T':
+      				status = 0;
+      				hasTempSensor = true;
+      				break;
+      							     							
+      			case 'B':
+      				// Note we don't set status to 0 here because
+      				// need at least one sensor
+      				hasBuzzer = true;
+      				break;
+      		}
+      							
+      		returnValue = Parser.GetChar();
+      	}
+     
+      	// If something went wrong ...
+      	if (status == -1)
+      	    Serial.println (F("Error: Must specify at least one sensor\n"));
+      	else
+      	{
+      	    // Configure this sensor
+      	    TheConfiguration->Initialize (sensorID, hasWaterSensor, hasTempSensor, hasBuzzer);
+      	}
+     }
+
+}
+
+// --------------------------------------------------------------------------- 
+// Process the W (water level threshold) command
+void SensorSerialInteface::ProcessWCommand(void)
+{
+    // If there is more data on the command line, assume the threshold has been
+    // specified and we are doing a set.
+    if (TheParser.MoreDataAvailable())
+    {
+     	int newThreshold = Parser.GetUnsignedLong();
+
+     	if ((newThreshold >= MIN_WATER_DETECT_THRESHOLD) 
+     		&& (newThreshold <= MAX_WATER_DETECT_THRESHOLD))
+     	{
+     		Serial.print ("Water detection threshold set to "); Serial.println(newThreshold);	
+     		TheConfiguration->SetWaterDetectThreshold(newThreshold);
+     	}
+     	else
+     	{
+     		Serial.print ("\nError: Water detection threshold must be between ");
+     		Serial.print (MIN_WATER_DETECT_THRESHOLD); Serial.print (" and ");
+     		Serial.println (MAX_WATER_DETECT_THRESHOLD);
+     	}
+     }
+     else
+     {
+     	// Nothing on the command line other than the W command, so we are doing a get
+     	Serial.print (F("Current water sensor threshold: ");
+     	Serial.print (TheConfiguration->GetWaterDetectThreshold()); Serial.println ("\n");
+     }
+}
+
+// --------------------------------------------------------------------------- 
+// Process the C (set communcations paramenters) command
+void SensorSerialInteface::ProcessCCommand(void)
+{
+    // Storage for local copies of settable items. We only change things
+    // it there are no syntax errors in the comand.
+    static char newString[IFTTT_KEY_LEN];  // IFTTT_KEY_LEN is the longest of the 
+                                           // configuation items dealt with in this file
+     	    
+    char nextCmd = Parser.GetCommandAndParameter(theParam, 80);
+     	    
+    // If there is nothing on the command line, just display
+    if (nextCmd == 0x00)
+    {
+        Serial.println (F("\nCommunications Parameters:"));
+        Serial.print (F("Wifi SSID: ")); Serial.println (TheConfiguration->GetWifiSSID());
+        
+        char* temp = TheConfiguration->GetWifiPassword();
+        Serial.println (F("Wifi Password: "));
+        Serial.print(temp[0]);
+        for (int i = 0; i < strlen(temp) - 2; i++)
+            Serial.print("*");
+        Serial.println();
+         
+        
+        temp = TheConfiguration->GetIFTTTKey();
+        Serial.println (F("IFTTT API Key: "));
+        Serial.print(temp[0]);
+        for (int i = 0; i < strlen(temp) - 2; i++)
+            Serial.print("*");
+        Serial.println("\n");
+    }
+    
+    // If there was no command, this will get skipped - no need for an 'else'
+    while (nextCmd != 0x00)
+    {
+     	 switch (toupper(nextCmd))
+     	 {
+     	      case 'S':   // Wifi SSID
+     	          TheParser.GetUnsignedLongToWhitespace (newString);
+     	          TheConfiguration->SetWifiSSID (newString);
+     	          break;
+     	          
+     	      case 'P':   // Wifi password
+     	          TheParser.GetUnsignedLongToWhitespace (newString);
+     	          TheConfiguration->GetWifiPassword (newString);
+     	          break;
+     	          
+     	      case 'A':   // ifttt.com API key
+     	          TheParser.GetUnsignedLongToWhitespace (newString);
+     	          TheConfiguration->SetIFTTTKey (newString);
+     	          break;
+     	          
+     	      default:
+     	          Serial.print (F("\nError: Invalid parameter "); 
+     	          Serial.print (nextCmd); Serial.println (F(" - Rest of command line ignored - Type H for help\n"));
+     	          break;
+     	 }      
+     }
+}
+
+// --------------------------------------------------------------------------- 
 // If we have a complete command, parse and act on it
 void SensorSerialInterface::Update (void)
 {
@@ -78,92 +244,43 @@ void SensorSerialInterface::Update (void)
 			// The Set command - format is 'S' <sensor name> [WTB] where W, T and B
       		// denote the presence of a water sensor, a temperature sensor and a
       		// buzzer respectively
-      		case 'S':
-                        
-      			// First get the sensor ID - The only criterion is that it
-      			// can't be blank.
-      			Parser.GetStringToWhitespace (sensorID, UUID_LEN);
-      					
-      			if (sensorID == 0x00)
-      			{
-      				Serial.println ("Error: Incorrect command syntax - Type H for help\n");
-      				status = -1;
-      			}
-      			else
-      			{
-      				// Now start looking for individual characters that describe the
-      				// hardware this sensor has.
-      				char returnValue = Parser.GetChar();
-      						
-      				status = -1;
-      				while (returnValue != 0x00)
-      				{
-      					switch (toupper(returnValue))
-      					{
-      						case 'W':
-      							status = 0;
-      							hasWaterSensor = true;
-      							break;
-      							
-      						case 'T':
-      							status = 0;
-      							hasTempSensor = true;
-      							break;
-      							     							
-      						case 'B':
-      							// Note we don't set status to 0 here because
-      							// need at least one sensor
-      							hasBuzzer = true;
-      							break;
-      					}
-      							
-      					returnValue = Parser.GetChar();
-      				}
-      			}		
-      			// If something went wrong ...
-      			if (status == -1)
-      				Serial.println ("Error: Must specify at least one sensor\n");
-      			else
-      			{
-      				// Configure this sensor
-      				TheConfiguration->Initialize (sensorID, hasWaterSensor, hasTempSensor, hasBuzzer);
-      			}
-     								
+      		case 'S':        
+      		    ProcessSCommand();					
       			break;
         
       		// Display a help message
       		case 'H':
-      			Serial.println ("S <sensor name> [WTB] - sets the sensor configuration");
-      			Serial.println ("where W, T and B denote the presence of: ");
-      			Serial.println ("- a water sensor (W)");
-      			Serial.println ("- a temperature sensor (T)");
-      			Serial.println ("- a buzzer (B)");
-      			Serial.println ("\nH - displays this message\n");
+      			Serial.println (F("S <sensor name> [WTB] - sets the sensor configuration"));
+      			Serial.println (F("where W, T and B denote the presence of: "));
+      			Serial.println (F("- a water sensor (W)"));
+      			Serial.println (F("- a temperature sensor (T)"));
+      			Serial.println (F("- a buzzer (B)"));
+      			Serial.println (F("\nW [<threshold>] - sets the water sensor detection threshold."));
+      			Serial.println (F("  - <threshold> must be in range [0..1023] and should be determined experimentally");
+      			Serial.print   (F("  - default value is ")); Serial.println (DEFAULT_WATER_DETECT_THRESHOLD);
+      			Serial.println (F("  - If <threshold> is not specified, the current value is returned\n");
+      			Serial.println (F("\nC [-s <wifi ssid>] [-p <wifi password>] [-a <IFTTT API key>]");
+      			Serial.println (F("  - Allows user to specify communications parameters if the defaults are not acceptable"));
+      			Serial.println (F("  - if only the C command is listed, current communications parameters are displayed.\n"));
+      			Serial.println (F()"\nH - displays this message\n");
       			break;
         
       		// Change the water detection threshold for hosts equipped with a water sensor	
      		case 'W':
-     			{
-     				int newThreshold = Parser.GetUnsignedLong();
-     				Serial.print ("WDT: ");Serial.println (newThreshold);
-     				if ((newThreshold >= MIN_WATER_DETECT_THRESHOLD) 
-     					&& (newThreshold <= MAX_WATER_DETECT_THRESHOLD))
-     				{
-     					Serial.print ("Water detection threshold set to "); Serial.println(newThreshold);	
-     					TheConfiguration->SetWaterDetectThreshold(newThreshold);
-     				}
-     				else
-     				{
-     					Serial.print ("\nError: Water detection threshold must be between ");
-     					Serial.print (MIN_WATER_DETECT_THRESHOLD); Serial.print (" and ");
-     					Serial.println (MAX_WATER_DETECT_THRESHOLD);
-     				}
-     			}
-     			break;
-    			
-       		default:
-      			Serial.println ("\nError: Invalid command - Type H for help\n");
+     		    ProcessWCommand();
       			break;
+     			
+     		// Set the communications parameters - this is compiled in for convenience,
+     		// but if you have to deploy a small number of sensors in a new location,
+     		// this might be a faster way to do it.
+     	  case 'C':
+     	      ProcessCCommand();   	    
+     	      break;
+
+    			
+     	  default:
+     	      Serial.println (F("\nError: Invalid command - Type H for help\n"));
+     	      break;
 
       	}
     
