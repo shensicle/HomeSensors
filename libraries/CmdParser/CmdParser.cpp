@@ -33,19 +33,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //Skip whitespace in the string
 void CmdParser::SkipWhitespace (void)
 {
-	bool done = false;
-	while ((CurrPos < StringPtr->length()) && (done == false))
-	{
-		if ((StringPtr->charAt (CurrPos) == ' ') ||
-		    (StringPtr->charAt (CurrPos) == '\t'))
-		{
-			CurrPos ++;
-		}
-		else
-		{
-			done = true;
-		}
-	}
+    bool done = false;
+    while ((CurrPos < StringPtr->length()) && (done == false))
+    {
+        // You would think from the Arduino docs that isWhitespace()
+        // would be the correct call here, but it isn't. It only detects
+        // spaces and tabs.
+        if (isSpace(StringPtr->charAt (CurrPos)))
+        {
+            CurrPos ++;
+        }
+        else
+        {
+            done = true;
+        }
+    }
 }
 	
 	

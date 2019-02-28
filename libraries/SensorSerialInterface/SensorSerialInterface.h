@@ -54,9 +54,9 @@ protected:
 	int NumProfiles;
 	
 	// Methods to process individual terminal commands, to keep Update() reasonable
-	void SProcessCCommand(void);
-	void SProcessSCommand(void);
-	void SProcessWCommand(void);
+	void ProcessCCommand(void);
+	void ProcessSCommand(void);
+	void ProcessWCommand(void);
 	
 public:
 	// Constructor

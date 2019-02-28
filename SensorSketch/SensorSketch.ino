@@ -1,8 +1,8 @@
 #include <ESP8266WiFi.h>
 
-#include <IFTTTMessage.h>
+#include "IFTTTMessage.h"
 
-#include <WaterSensor.h>
+#include "WaterSensor.h"
 #include "SensorConfigDefs.h"
 #include "SensorConfig.h"
 #include "SensorSerialInterface.h"
@@ -144,36 +144,50 @@ void loop()
 
 
 // --------------------------------------------------------------------------------------------------
-bool ConnectWifi(char* ssid, char* password)  // Tries to connect to the wireless access point with the credentials provided
-{
-    bool timeOut = 0; // Change to 1 if connection times out
-    byte attempts = 0;   // Counter for the number of attempts to connect to wireless AP
-  
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
-  
-    WiFi.begin(ssid, password); // Connect to WiFi network
-
-    while (WiFi.status() != WL_CONNECTED && (timeOut == 0)) // Test to see if we're connected
-    {
-        Serial.print('.');
-        attempts++;
+// Tries to connect to the wireless access point with the credentials provided.  The idea is to call
+// this multiple times, until connection is established, so that the board can continue to do other
+// things. Also, because some of the features of the Wifi class seem to require background processing.
+void ConnectWifi(char* ssid, char* password)  
+{  
+    // After a timeout, number of milliseconds to wait until trying again
+    static int millisecondsToRetry = DelayPerLoop;
     
-        if(attempts > 60) 
-            break; // Give up after ~30 seconds
-        else 
-            delay(500);      // Check again after 500ms
-    }
+    byte attempts = 0;   // Counter for the number of attempts to connect to wireless AP
+
+    millisecondsToRetry -= DelayPerLoop;
+
+    if (millisecondsToRetry <= 0)
+    {
+      Serial.print(F("Connecting to ")); Serial.println(ssid);
   
-    if (WiFi.status() == WL_CONNECTED)  // We're connected
-    {
-        Serial.println("\r\nWiFi connected");
-    }
-    else  // Unable to connect
-    {
-        WiFi.disconnect();
-        Serial.println("\r\nConnection Timed Out!\r\n");
-    }
+      WiFi.begin(ssid, password); // Connect to WiFi network
+
+      while (WiFi.status() != WL_CONNECTED) // Test to see if we're connected
+      {
+          Serial.print('.');
+          attempts++;
+    
+          if(attempts > 20) // Give up after 20 tries 
+          {
+            Serial.println (F("\nWifi connection failed. Will try again in 30 seconds."));
+            millisecondsToRetry = 30000;
+            break; 
+          }
+          else 
+          {
+            delay(500);      // Check again after 500ms
+          }
+      }
+  
+      if (WiFi.status() == WL_CONNECTED)  // We're connected
+      {
+         Serial.println(F("\nWiFi connected ...\n"));
+      }
+      else  // Unable to connect
+      {
+         WiFi.disconnect();
+      }
+   }
 }
 
 // -------------------------------------------------------
