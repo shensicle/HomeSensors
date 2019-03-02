@@ -8,6 +8,7 @@
 #include "SensorSerialInterface.h"
 #include "SimpleLED.h"
 
+#define FIRMWARE_VERSION "V1.0"
 
 // Constants we use in the loop() method to serivce hardware at different intervals
 unsigned int DelayPerLoop         = 50;  // milliseconds - has to be fast enough for terminal interface
@@ -53,7 +54,9 @@ void setup() {
   // Start serial communication for debug information
   Serial.begin(115200); 
 
-  Serial.println ("\nshensicle sensor platform - type 'H' for help\n");
+  Serial.print (F("\n\n\nshensicle sensor platform - Firmware version "));
+  Serial.print (FIRMWARE_VERSION);
+  Serial.println (F(" - type 'H' for help\n"));
   
   // Set up LED to flash so user knows we're alive
   TheLED.SetFlashMode(true);
@@ -91,8 +94,8 @@ void setup() {
       // Speed up LED flashing to alert the user
       TheLED.SetUpdateInterval(100);
       
-      Serial.println ("*** Configuration checksum failure ***");
-      Serial.println ("Use the 'S' command to set configuration\n");
+      Serial.println (F("*** Configuration checksum failure ***"));
+      Serial.println (F("Use the 'C' and 'S' commands to configure this unit\n"));
   }
 }
 
@@ -142,7 +145,6 @@ void loop()
    delay (DelayPerLoop);
 }
 
-
 // --------------------------------------------------------------------------------------------------
 // Tries to connect to the wireless access point with the credentials provided.  The idea is to call
 // this multiple times, until connection is established, so that the board can continue to do other
@@ -189,7 +191,6 @@ void ConnectWifi(char* ssid, char* password)
       }
    }
 }
-
 // -------------------------------------------------------
 // This function is called during each repetition of loop()
 void SerialEvent() 
@@ -204,4 +205,53 @@ void SerialEvent()
   }
 }
 
+
+/*
+// --------------------------------------------------------------------------------------------------
+// Tries to connect to the wireless access point with the credentials provided.  The idea is to call
+// this multiple times, until connection is established, so that the board can continue to do other
+// things. Also, because some of the features of the Wifi class seem to require background processing.
+void ConnectWifi(char* ssid, char* password)  
+{  
+    // After a timeout, number of milliseconds to wait until trying again
+    static int millisecondsToRetry = DelayPerLoop;
+    
+    byte attempts = 0;   // Counter for the number of attempts to connect to wireless AP
+
+    millisecondsToRetry -= DelayPerLoop;
+
+    if (millisecondsToRetry <= 0)
+    {
+      Serial.print(F("Connecting to ")); Serial.println(ssid);
+  
+      WiFi.begin(ssid, password); // Connect to WiFi network
+
+      while (WiFi.status() != WL_CONNECTED) // Test to see if we're connected
+      {
+          Serial.print('.');
+          attempts++;
+    
+          if(attempts > 20) // Give up after 20 tries 
+          {
+            Serial.println (F("\nWifi connection failed. Will try again in 30 seconds."));
+            millisecondsToRetry = 30000;
+            break; 
+          }
+          else 
+          {
+            delay(500);      // Check again after 500ms
+          }
+      }
+  
+      if (WiFi.status() == WL_CONNECTED)  // We're connected
+      {
+         Serial.println(F("\nWiFi connected ...\n"));
+      }
+      else  // Unable to connect
+      {
+         WiFi.disconnect();
+      }
+   }
+}
+ */
 

@@ -68,7 +68,7 @@ void SensorSerialInterface::ProcessSCommand(void)
     // can't be blank.
     Parser.GetStringToWhitespace (sensorID, UUID_LEN);
       					
-    if (sensorID == 0x00)
+    if (sensorID[0] == 0x00)
     {
       	// 'S' command only - display current configuration
       	Serial.println (F("\nCurrent configuration:"));
@@ -186,16 +186,13 @@ void SensorSerialInterface::ProcessCCommand(void)
         char* temp = TheConfiguration->GetWifiPassword();
         Serial.print (F("Wifi Password: "));
         Serial.print(temp[0]);
-        for (int i = 0; i < strlen(temp) - 2; i++)
-            Serial.print("*");
-        Serial.println();
+        Serial.println(F("***********"));
          
         
         temp = TheConfiguration->GetIFTTTKey();
         Serial.print (F("IFTTT API Key: "));
         Serial.print(temp[0]);
-        for (int i = 0; i < strlen(temp) - 2; i++)
-            Serial.print("*");
+        Serial.println(F("***********"));
         Serial.println("\n");
     }
     
@@ -257,18 +254,19 @@ void SensorSerialInterface::Update (void)
         
       		// Display a help message
       		case 'H':
-      			Serial.println (F("S <sensor name> [WTB] - sets the sensor configuration"));
+      			Serial.println (F("S [<sensor name> <WTB>] - sets the sensor configuration"));
       			Serial.println (F("where W, T and B denote the presence of: "));
       			Serial.println (F("  - a water sensor (W)"));
       			Serial.println (F("  - a temperature sensor (T)"));
       			Serial.println (F("  - a buzzer (B)"));
+      			Serial.println (F("  - if there are no parameters, the current sensor information is displayed\n"));
       			Serial.println (F("\nW [<threshold>] - sets the water sensor detection threshold."));
       			Serial.println (F("  - <threshold> must be in range [0..1023] and should be determined experimentally"));
       			Serial.print   (F("  - default value is ")); Serial.println (DEFAULT_WATER_DETECT_THRESHOLD);
-      			Serial.println (F("  - If <threshold> is not specified, the current value is returned\n"));
+      			Serial.println (F("  - If <threshold> is not specified, the current value is displayed\n"));
       			Serial.println (F("\nC [-s <wifi ssid>] [-p <wifi password>] [-a <IFTTT API key>]"));
       			Serial.println (F("  - Allows user to specify communications parameters if the defaults are not acceptable"));
-      			Serial.println (F("  - if only the C command is listed, current communications parameters are displayed.\n"));
+      			Serial.println (F("  - if there are no parameters, current communications settings are displayed.\n"));
       			Serial.println (F("\nH - displays this message\n"));
       			break;
         

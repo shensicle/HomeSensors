@@ -167,6 +167,7 @@ void CmdParser::GetStringToWhitespace (char* theResult, unsigned maxLen)
     
     bool done = false;
     int i = 0;
+    theResult[0] = 0x00; // Null-terminate response for case where there is no string
         
     while ((CurrPos < StringPtr->length()) && (i < maxLen) && (done == false))
     {
@@ -179,7 +180,7 @@ void CmdParser::GetStringToWhitespace (char* theResult, unsigned maxLen)
         else
         {
              // Copy this character into our result string and move to next
-             theResult[i++] = toupper (StringPtr->charAt(CurrPos++));
+             theResult[i++] = StringPtr->charAt(CurrPos++);
          }
      }      
 }
