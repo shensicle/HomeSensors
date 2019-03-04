@@ -30,11 +30,11 @@ bool IFTTTMessageClass::Connect (void)
    
    if(TheClient.connect("maker.ifttt.com",80))  // Test the connection to the server
    {
-     Serial.println("Connected to ifttt");
+     Serial.println(F("Connected to ifttt"));
    }
    else
    {
-     Serial.println("Failed to connect to ifttt.");
+     Serial.println(F("Failed to connect to ifttt"));
      returnValue = false;
    }
    
@@ -60,6 +60,12 @@ bool IFTTTMessageClass::Send (String theMessage)
 	    TheClient.println(postData.length());  // length of JSON payload
         TheClient.println();
         TheClient.println(postData);           // JSON payload
+        
+        Serial.println (F("Message sent to ifttt\n"));
     }
+    else
+    {
+         Serial.println (F("Unable to send to ifttt\n"));
+   }
 }
 
