@@ -40,6 +40,7 @@ typedef struct
       char WifiPassword[WIFI_PASSWORD_LEN];
       char IFTTTKey[IFTTT_KEY_LEN];  
       char UUID[UUID_LEN];
+      bool Spare;
       bool HasWaterSensor;
       bool HasTempSensor;
       bool HasBuzzer;
@@ -54,6 +55,11 @@ typedef struct
 #define DEFAULT_WIFI_SSID "Your SSID"
 #define DEFAULT_WIFI_PASSWORD "Your WIFI Password"
 #define DEFAULT_IFTTT_KEY "Your IFTTT Key"
+#define DEFAULT_UUID "Unnamed Sensor"
+
+#define DEFAULT_HAS_WATER_SENSOR false
+#define DEFAULT_HAS_TEMP_SENSOR  false
+#define DEFAULT_HAS_BUZZER       false
 
 #define MIN_WATER_DETECT_THRESHOLD 0
 #define MAX_WATER_DETECT_THRESHOLD 1023

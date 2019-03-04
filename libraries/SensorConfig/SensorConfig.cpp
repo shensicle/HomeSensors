@@ -111,9 +111,26 @@ bool SensorConfigClass::Load (void)
 {
     // Read our configuration from EEPROM
     bool returnValue = Read();
+    
+    // If there was a checksum failure, restore defaults
+    if (returnValue == false)
+    {
+    	Initialize (DEFAULT_UUID,
+    		        DEFAULT_HAS_WATER_SENSOR,
+    		        DEFAULT_HAS_TEMP_SENSOR,
+    		        DEFAULT_HAS_BUZZER,
+    		        DEFAULT_WIFI_SSID,
+    		        DEFAULT_WIFI_PASSWORD,
+    		        DEFAULT_IFTTT_KEY,
+    		        DEFAULT_WATER_DETECT_THRESHOLD,
+    		        DEFAULT_TEMPERATURE_LOW_THRESHOLD,
+    		        DEFAULT_TEMPERATURE_HIGH_THRESHOLD);
+    		        
+    }
 		
     return (returnValue);
 }
+
 
 // ------------------------------------------------------------------------------
 // Clears EEPROM and writes the values provided. Intended to be used by
@@ -141,6 +158,22 @@ void SensorConfigClass::Initialize (char* theUUID,
     TheConfiguration.WaterDetectThreshold = waterDetectThreshold;
     TheConfiguration.TemperatureLowThreshold = temperatureLowThreshold;
     TheConfiguration.TemperatureHighThreshold = temperatureHighThreshold;
+
+    // And save
+    Write();
+}
+
+// ------------------------------------------------------------------------------
+// Configure the sensor information - name, and what hardware is connected.
+void SensorConfigClass::SetSensor (char*  theUUID,
+        	             		   bool   hasWaterSensor,
+        	             		   bool   hasTempSensor,
+        	             		   bool   hasBuzzer)
+{
+    strncpy (TheConfiguration.UUID, theUUID, UUID_LEN);
+    TheConfiguration.HasWaterSensor = hasWaterSensor;
+    TheConfiguration.HasTempSensor  = hasTempSensor;
+    TheConfiguration.HasBuzzer      = hasBuzzer;
 
     // And save
     Write();

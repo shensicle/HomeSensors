@@ -128,7 +128,8 @@ void SensorSerialInterface::ProcessSCommand(void)
       	else
       	{
       	    // Configure this sensor
-      	    TheConfiguration->Initialize (sensorID, hasWaterSensor, hasTempSensor, hasBuzzer);
+      	    TheConfiguration->SetSensor(sensorID, hasWaterSensor, hasTempSensor, hasBuzzer);
+      	    Serial.println (F("Sensor configuration updated\n"));
       	}
      }
 
@@ -203,14 +204,17 @@ void SensorSerialInterface::ProcessCCommand(void)
      	 {
      	      case 'S':   // Wifi SSID
      	          TheConfiguration->SetWifiSSID (newString);
+     	          Serial.println (F("\nWifi SSID updated\n"));
      	          break;
      	          
      	      case 'P':   // Wifi password
      	          TheConfiguration->SetWifiPassword (newString);
+     	          Serial.println (F("\nWifi password updated\n"));
      	          break;
      	          
      	      case 'A':   // ifttt.com API key
      	          TheConfiguration->SetIFTTTKey (newString);
+     	          Serial.println (F("\nIFTTT API key updated\n"));
      	          break;
      	          
      	      default:
@@ -223,6 +227,7 @@ void SensorSerialInterface::ProcessCCommand(void)
 
      }
 }
+
 
 // --------------------------------------------------------------------------- 
 // If we have a complete command, parse and act on it
@@ -254,6 +259,7 @@ void SensorSerialInterface::Update (void)
         
       		// Display a help message
       		case 'H':
+      			Serial.print("\n\n");
       			Serial.println (F("S [<sensor name> <WTB>] - sets the sensor configuration"));
       			Serial.println (F("where W, T and B denote the presence of: "));
       			Serial.println (F("  - a water sensor (W)"));
@@ -281,7 +287,6 @@ void SensorSerialInterface::Update (void)
      	  case 'C':
      	      ProcessCCommand();   	    
      	      break;
-
     			
      	  default:
      	      Serial.println (F("\nError: Invalid command - Type H for help\n"));

@@ -102,6 +102,8 @@ class SensorConfigClass
    	    int GetTemperatureHighThreshold (void)
   	    { return (TheConfiguration.TemperatureHighThreshold); }
   	    
+  	    // Toggle VerboseModeOn and return a value indicating whether or not it is on
+  	    bool ToggleVerboseMode(void);
 		
   	    // Load the configuration from EEPROM. This must be called after the object is
   	    // created but before any of the other methods can be used. Returns true on success and false
@@ -109,9 +111,7 @@ class SensorConfigClass
   	    bool Load(void);
 		
         // Clears EEPROM and writes the values provided. Intended to be used by
-        // the initialization sketch to configure boards. The BoardID is not provided
-        // in this call as it has to be entered by the user after the sketch is done
-        // it's setup.
+        // the initialization sketch to configure boards. 
         void Initialize (char* theUUID,
         	             bool  hasWaterSensor,
         	             bool  hasTempSensor,
@@ -123,6 +123,12 @@ class SensorConfigClass
         	             int   temperatureLowThreshold = DEFAULT_TEMPERATURE_LOW_THRESHOLD,
         	             int   temperatureHighThreshold = DEFAULT_TEMPERATURE_HIGH_THRESHOLD);
         
+        
+        // Configure the sensor information - name, and what hardware is connected.
+        void SetSensor (char*  theUUID,
+        	             bool  hasWaterSensor,
+        	             bool  hasTempSensor,
+        	             bool  hasBuzzer);
 };
 
 
