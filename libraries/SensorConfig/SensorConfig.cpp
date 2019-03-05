@@ -158,6 +158,13 @@ void SensorConfigClass::Initialize (char* theUUID,
     TheConfiguration.WaterDetectThreshold = waterDetectThreshold;
     TheConfiguration.TemperatureLowThreshold = temperatureLowThreshold;
     TheConfiguration.TemperatureHighThreshold = temperatureHighThreshold;
+    
+    // Zero out alignment fields we're not currently using
+    TheConfiguration.Spare1 = 0;
+    TheConfiguration.Spare2 = 0;
+    
+    // Store the version of our configuration layout
+    TheConfiguration.Version = CONFIGURATION_VERSION;
 
     // And save
     Write();

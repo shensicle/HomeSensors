@@ -129,7 +129,7 @@ void SensorSerialInterface::ProcessSCommand(void)
       	{
       	    // Configure this sensor
       	    TheConfiguration->SetSensor(sensorID, hasWaterSensor, hasTempSensor, hasBuzzer);
-      	    Serial.println (F("Sensor configuration updated\n"));
+      	    Serial.println (F("Sensor configuration updated. Please reboot\n"));
       	}
      }
 
@@ -196,12 +196,13 @@ void SensorSerialInterface::ProcessCCommand(void)
         Serial.println(F("***********"));
         Serial.println("\n");
     }
-    
-    // If there was no command, this will get skipped - no need for an 'else'
-    while (nextCmd != 0x00)
+    else
     {
-     	 switch (toupper(nextCmd))
-     	 {
+    	// While there are more commands ...
+    	while (nextCmd != 0x00)
+    	{
+    		switch (toupper(nextCmd))
+    		{
      	      case 'S':   // Wifi SSID
      	          TheConfiguration->SetWifiSSID (newString);
      	          Serial.println (F("\nWifi SSID updated\n"));
@@ -221,10 +222,11 @@ void SensorSerialInterface::ProcessCCommand(void)
      	          Serial.print (F("\nError: Invalid command - ")); 
      	          Serial.print (nextCmd); Serial.println (F(" - ignored - Type H for help\n"));
      	          break;
-     	 }
+     	    }
      	 
-     	 nextCmd = Parser.GetCommandAndParameter(newString, bufLen);   
-
+     	    nextCmd = Parser.GetCommandAndParameter(newString, bufLen);   
+     	}
+     	Serial.println (F("Communications settings updated. Please reboot\n"));
      }
 }
 

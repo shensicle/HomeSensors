@@ -25,29 +25,35 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-// Lengths for fixed fields in the configuration structure
-#define WIFI_SSID_LEN     25
-#define WIFI_PASSWORD_LEN 25
-#define IFTTT_KEY_LEN     30
+// This version of the configuration structure. Used in future software versions
+// to be able to detect and update configuration information from previous versions.
+#define CONFIGURATION_VERSION 1
 
-#define UUID_LEN          25
+// Lengths for fixed fields in the configuration structure. All multiples
+// of 4 to maintain long-word alignment
+#define WIFI_SSID_LEN     24
+#define WIFI_PASSWORD_LEN 24
+#define IFTTT_KEY_LEN     32
+
+#define UUID_LEN          24
 
 
-// Structure to save a personality file for this sketch in EEPROM
+// Structure to save configuration for this sketch in EEPROM
 typedef struct
 {
-      char WifiSSID[WIFI_SSID_LEN];
-      char WifiPassword[WIFI_PASSWORD_LEN];
-      char IFTTTKey[IFTTT_KEY_LEN];  
-      char UUID[UUID_LEN];
-      bool Spare;
-      bool HasWaterSensor;
-      bool HasTempSensor;
-      bool HasBuzzer;
-      int  WaterDetectThreshold;
-      int  TemperatureLowThreshold;
-      int  TemperatureHighThreshold;
-      
+      unsigned short  	Version;                  // Version of this configuration block - used for future upgrades
+	  char  		   	WifiSSID[WIFI_SSID_LEN];
+      char 			   	WifiPassword[WIFI_PASSWORD_LEN];
+      char 			   	IFTTTKey[IFTTT_KEY_LEN];  
+      char				UUID[UUID_LEN];
+      bool				HasWaterSensor;
+      bool				HasTempSensor;
+      bool 				HasBuzzer;
+      bool 				Spare1;
+      unsigned short 	WaterDetectThreshold;
+      short  			TemperatureLowThreshold;
+      short  			TemperatureHighThreshold;
+      short   			Spare2;
 } config_t;
 
 
