@@ -1,3 +1,5 @@
+#include <BH1750FVI.h>
+
 /*
   Example of BH1750 library usage.
   This example initialises the BH1750 object using the default high resolution
@@ -21,9 +23,8 @@
 */
 
 #include <Wire.h>
-#include <BH1750.h>
 
-BH1750 lightMeter;
+BH1750FVI  lightMeter(BH1750FVI::k_DevModeContLowRes);
 
 void setup(){
 
@@ -33,7 +34,7 @@ void setup(){
   Wire.begin();
   // On esp8266 you can select SCL and SDA pins using Wire.begin(D4, D3);
 
-  lightMeter.begin(BH1750::ONE_TIME_HIGH_RES_MODE);
+  lightMeter.begin();
   //lightMeter.setMTreg(69);  // not needed, only mentioning it
 
   Serial.println(F("BH1750 Test begin"));
@@ -42,48 +43,10 @@ void setup(){
 
 void loop() {
   //we use here the maxWait option due fail save
-  float lux = lightMeter.readLightLevel(true);
+  unsigned short lux = lightMeter.GetLightIntensity();
   Serial.print(F("Light: "));
   Serial.print(lux);
   Serial.println(F(" lx"));
 
-  if (lux < 0) {
-    Serial.println(F("Error condition detected"));
-  }
-  else {
-    if (lux > 40000.0) {
-      // reduce measurement time - needed in direct sun light
-      if (lightMeter.setMTreg(32)) {
-        Serial.println(F("Setting MTReg to low value for high light environment"));
-      }
-      else {
-        Serial.println(F("Error setting MTReg to low value for high light environment"));
-      }
-    }
-    else {
-        if (lux > 10.0) {
-          // typical light environment
-          if (lightMeter.setMTreg(69)) {
-            Serial.println(F("Setting MTReg to default value for normal light environment"));
-          }
-          else {
-            Serial.println(F("Error setting MTReg to default value for normal light environment"));
-          }
-        }
-        else {
-          if (lux <= 10.0) {
-            //very low light environment
-            if (lightMeter.setMTreg(138)) {
-              Serial.println(F("Setting MTReg to high value for low light environment"));
-            }
-            else {
-              Serial.println(F("Error setting MTReg to high value for low light environment"));
-            }
-          }
-       }
-    }
-
-  }
-  Serial.println(F("--------------------------------------"));
   delay(5000);
 }
