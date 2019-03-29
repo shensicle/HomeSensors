@@ -28,7 +28,7 @@ BH1750FVI  lightMeter(BH1750FVI::k_DevModeContLowRes);
 
 void setup(){
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   // Initialize the I2C bus (BH1750 library doesn't do this automatically)
   Wire.begin();
