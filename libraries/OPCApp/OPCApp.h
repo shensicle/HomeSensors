@@ -8,7 +8,9 @@
 class OPCApp
 {
 public:
-		
+	
+	// Constructor - set everything up
+	OPCApp (void);
 	
 	// Set the camera resolution. Return value indicates success when set.
 	bool SetCameraResLow(void);
@@ -33,16 +35,25 @@ public:
 	// Returns a flag which, when set, indicates that there is currently a capture
 	// in progress
 	bool CaptureInProgress (void)
-	{ return (CaptureUnderway); }
-	
-		                  
+	{ return (CaptureUnderway); }		                  
 	
 protected:
 	
 	// A flag which, when set, indicates that a capture is currently underway
 	bool CaptureUnderway;
 	
+	// The number of the next file we can write. This number is turned into a
+	// string and used to name the file
+	unsigned long NextFileNumber;
+	
+	// Figure out the name (number) of the next file we can write to
+	void LoadNextFileNumber (void);
 
+	// Write the header at the start of an image file
+	void WriteImageFileHeader(void);
+	
+	// Move the sensor to the first pixel position of the image
+	void MoveToStartOfImage (void);
 	
 };
 

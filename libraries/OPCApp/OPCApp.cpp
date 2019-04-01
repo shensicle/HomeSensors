@@ -1,3 +1,6 @@
+#include "SD.h"
+#include "Stepper.h"
+
 #include "OPCApp.h"
 
 // -----------------------------------------------------------------------------	
@@ -52,8 +55,34 @@ void OPCApp::AbortCapture (void)
 }
 
 // -----------------------------------------------------------------------------	
-void OPCApp::CaptureTask (void)
+// Figure out the name (number) of the next file we can write to
+void OPCApp::LoadNextFileNumber (void)
 {
+	// Attempt to open file LastNumber.txt. If this file can't be opened, start
+	// numbering images at 1. Otherwise, use the number stored in this file
+	
+	// Try to open file
+	
+	// If successful, read the number on the first line
+	
+	// If okay, use it
+	
+}
+
+// -----------------------------------------------------------------------------	
+// Write the header at the start of an image file
+void OPCApp::WriteImageFileHeader(void)
+{
+}
+
+// Move the sensor to the first pixel position of the image
+void OPCApp::MoveToStartOfImage (void)
+[
+]
+
+// -----------------------------------------------------------------------------	
+//void OPCApp::CaptureTask (void)
+//{
 	// For each row in the image
 	
 		// For each column in the current row
@@ -65,5 +94,5 @@ void OPCApp::CaptureTask (void)
 		// Save sensor value
 		
 		// Check to make sure an abort hasn't been requested
-}
+//}
 	
