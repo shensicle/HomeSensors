@@ -1,5 +1,5 @@
-#ifndef _1PCAPPDEFS_H
-#define _1PCAPPDEFS_H
+#ifndef _OPCAPPDEFS_H
+#define _OPCAPPDEFS_H
 
 	typedef enum capture_mode_t
 	{
@@ -22,7 +22,7 @@
 		unsigned short horizRes;
 		unsigned short vertRes;
 		capture_mode_t captureMode;
-		bit_depth_t    bitDepth
+		bit_depth_t    bitDepth;
 	};
 	
 #define CONFIGURATION_VERSION 1

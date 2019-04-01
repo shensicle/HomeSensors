@@ -21,14 +21,14 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "1PCConfig.h"
+#include "OPCConfig.h"
 #include <EEPROM.h>
 #include <Arduino.h>
 
 // ----------------------------------------------------------------------
 // Return the one's complement checksum of the configuration structure. This
 // checksum is stored in EEPROM along with the configuration itself.
-unsigned char OnePCConfigClass::CalculateChecksum (void)
+unsigned char OPCConfigClass::CalculateChecksum (void)
 {
 	unsigned char* configurationBytes = (unsigned char*)&TheConfiguration;
 	
@@ -45,7 +45,7 @@ unsigned char OnePCConfigClass::CalculateChecksum (void)
 
 // ----------------------------------------------------------------------
 // Constructor - allocate EEPROM space
-OnePCConfigClass::1PCConfigClass (void)
+OPCConfigClass::OPCConfigClass (void)
 {
 	
 	// Clear the configuration structure
@@ -58,7 +58,7 @@ OnePCConfigClass::1PCConfigClass (void)
 
 // ----------------------------------------------------------------------
 // Write configuration information to EEPROM, adding a checksum
-void OnePCConfigClass::Write (void)
+void OPCConfigClass::Write (void)
 {
     unsigned writeAddr = 0;
 	
@@ -78,7 +78,7 @@ void OnePCConfigClass::Write (void)
 // ----------------------------------------------------------------------
 // Read configuration information from EEPROM and validate the checksum
 // Returns true if configuration is valid and false otherwise
-bool OnePCConfigClass::Read(void)
+bool OPCConfigClass::Read(void)
 {
     bool returnValue = true;
     unsigned readAddr = 0;
@@ -93,7 +93,7 @@ bool OnePCConfigClass::Read(void)
     unsigned char checksum  = CalculateChecksum ();
 	
     // Read the stored checksum
-    readAddr += sizeof (config_t);
+    readAddr += sizeof (camera_config_t);
     unsigned char storedChecksum;
     EEPROM.get (readAddr, storedChecksum);
 
@@ -107,7 +107,7 @@ bool OnePCConfigClass::Read(void)
 // Load the configuration from EEPROM. This must be called after the object is
 // created but before any of the other methods can be used. Returns 0 on success and -1
 // if something goes wrong.
-bool OnePCConfigClass::Load (void)
+bool OPCConfigClass::Load (void)
 {
     // Read our configuration from EEPROM
     bool returnValue = Read();
@@ -126,7 +126,7 @@ bool OnePCConfigClass::Load (void)
 // ------------------------------------------------------------------------------
 // Clears EEPROM and writes the values provided. Intended to be used by
 // the initialization sketch to configure boards. 
-bool OnePCConfigClass::Initialize (void)
+bool OPCConfigClass::Initialize (void)
 {
 
 	TheConfiguration.version      = CONFIGURATION_VERSION;
@@ -140,8 +140,8 @@ bool OnePCConfigClass::Initialize (void)
 }
 
 // ------------------------------------------------------------------------------
-// Configure the sensor information - name, and what hardware is connected.
-void OnePCConfigClass::SetConfiguration ( camera_config_t* theConfiguration)
+// Set and save camera configuration
+void OPCConfigClass::SetConfiguration ( camera_config_t* theConfiguration)
 {
     memcpy (&TheConfiguration, theConfiguration, sizeof(TheConfiguration));
 
@@ -151,7 +151,7 @@ void OnePCConfigClass::SetConfiguration ( camera_config_t* theConfiguration)
 
 // ------------------------------------------------------------------------------
 // Return a copy of our configuration structure
-void OnePCConfigClass::GetConfiguration (camera_config_t* theConfiguration)
+void OPCConfigClass::GetConfiguration (camera_config_t* theConfiguration)
 {
 	   memcpy (theConfiguration, &TheConfiguration, sizeof(TheConfiguration));
 }

@@ -1,11 +1,11 @@
 #ifndef _1PCAPP_H
 #define _!PCAPP_H
 
-#include "1PCAppDefs.h"
+#include "OPCAppDefs.h"
 
 // One-pixel camera application
 
-class 1PCApp
+class OPCApp
 {
 public:
 		
@@ -42,6 +42,8 @@ protected:
 	// A flag which, when set, indicates that a capture is currently underway
 	bool CaptureUnderway;
 	
-}
+
+	
+};
 
 #endif

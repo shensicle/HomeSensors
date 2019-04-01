@@ -1,5 +1,5 @@
-#ifndef _1PC_CONFIG_H
-#define _1PC_CONFIG_H
+#ifndef _OPC_CONFIG_H
+#define _OPC_CONFIG_H
 
 /*
 Copyright 2019 Scott Henwood All Rights Reserved.
@@ -25,9 +25,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // The definition of the configuration for the current sketch. 
-#include "OnePCAppDefs.h"
+#include "OPCAppDefs.h"
 
-class OnePCConfigClass
+class OPCConfigClass
 {
     private:
         // The buffer that stores our configuration, as layed out in EEPROM
@@ -48,14 +48,13 @@ class OnePCConfigClass
   	public:
  	    
   	    // Constructor - allocate EEPROM space
-  	    OnePCConfigClass (void);
+  	    OPCConfigClass (void);
 				
   	    // Return a copy of our configuration structure
   	    void GetConfiguration (camera_config_t* theConfiguration);
   	    
-  	    // Save a new configuration. Return false if something goes wrong with
-  	    // the hardware.
-  	    bool SetConfiguration (camera_config_t* theConfiguration);
+  	    // // Set and save camera configuration
+  	    void SetConfiguration (camera_config_t* theConfiguration);
   	       
 		
   	    // Load the configuration from EEPROM. This must be called after the object is

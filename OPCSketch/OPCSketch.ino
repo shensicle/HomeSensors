@@ -1,5 +1,8 @@
 #include <BH1750FVI.h>
 
+#include "OPCConfig.h"
+#include "OPCApp.h"
+
 /*
   Example of BH1750 library usage.
   This example initialises the BH1750 object using the default high resolution
