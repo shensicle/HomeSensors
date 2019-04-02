@@ -40,6 +40,8 @@ bool OPCApp::StartNewCapture (void)
 	
 	// Open the output file
 	
+	// Write the file header
+	
 	// Start the capture thread
 }
 	
