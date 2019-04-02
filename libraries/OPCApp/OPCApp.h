@@ -43,11 +43,15 @@ protected:
 	bool CaptureUnderway;
 	
 	// The number of the next file we can write. This number is turned into a
-	// string and used to name the file
+	// string and used to name the file.
 	unsigned long NextFileNumber;
 	
 	// Figure out the name (number) of the next file we can write to
 	void LoadNextFileNumber (void);
+	
+	// Save the number of the next file we can write so that we can use it on
+	// power-up. This number is turned into a string and used to name the file.
+	void SaveNextFileNumber (void);
 
 	// Write the header at the start of an image file
 	void WriteImageFileHeader(void);

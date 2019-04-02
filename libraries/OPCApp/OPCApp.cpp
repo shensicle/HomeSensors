@@ -4,6 +4,18 @@
 #include "OPCApp.h"
 
 // -----------------------------------------------------------------------------	
+void OPCap::OPCap (void)
+{
+    // Set pins for motors
+    
+    // Set pins for sensor platform limit switches
+    
+    // Set pins for SD card
+    
+    LoadNextFileNumber (void);
+}
+
+// -----------------------------------------------------------------------------	
 // Set the camera resolution. Return value indicates success when set.
 bool OPCApp::SetCameraResLow(void)
 {
@@ -50,10 +62,16 @@ bool OPCApp::StartNewCapture (void)
 void OPCApp::AbortCapture (void)
 {
 	// Only do something if there is currently a capture underway
+	if (CaptureUnderway)
+	{
 	
-	// Signal the capture thread to stop and wait until it does
+	    // Signal the capture thread to stop and wait until it does
 	
-	// Delete the output file from the aborted capture
+	    // Delete the output file from the aborted capture. Don't change the output
+	    // file name/number here. We will re-use it.
+	    
+	    CaptureUnderway = false;
+	}
 }
 
 // -----------------------------------------------------------------------------	
@@ -71,12 +89,22 @@ void OPCApp::LoadNextFileNumber (void)
 	
 }
 
+// -----------------------------------------------------------------------------		
+// Save the number of the next file we can write so that we can use it on
+// power-up. This number is turned into a string and used to name the file.
+void OPCApp::SaveNextFileNumber (void)
+{
+    
+}
+
+
 // -----------------------------------------------------------------------------	
 // Write the header at the start of an image file
 void OPCApp::WriteImageFileHeader(void)
 {
 }
 
+// -----------------------------------------------------------------------------		
 // Move the sensor to the first pixel position of the image
 void OPCApp::MoveToStartOfImage (void)
 [
