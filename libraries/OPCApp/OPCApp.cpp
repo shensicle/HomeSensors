@@ -11,6 +11,7 @@ void OPCap::OPCap (void)
     // Set pins for sensor platform limit switches
     
     // Set pins for SD card
+    // if (! SD.begin(...) {};
     
     LoadNextFileNumber (void);
 }
@@ -47,8 +48,10 @@ void OPCApp::GetCameraConfig (camera_config_t* theConfig)
 bool OPCApp::StartNewCapture (void)
 {
 	// If there is already a capture in progress, abort it
-	
+	AbortCapture();
+
 	// Ensure sensor is in the right place
+	MoveSensorHome();
 	
 	// Open the output file
 	
@@ -64,11 +67,11 @@ void OPCApp::AbortCapture (void)
 	// Only do something if there is currently a capture underway
 	if (CaptureUnderway)
 	{
-	
 	    // Signal the capture thread to stop and wait until it does
 	
 	    // Delete the output file from the aborted capture. Don't change the output
 	    // file name/number here. We will re-use it.
+        CaptureFile.close();  // SHOULD BE DONE IN TASK ??
 	    
 	    CaptureUnderway = false;
 	}
@@ -82,10 +85,29 @@ void OPCApp::LoadNextFileNumber (void)
 	// numbering images at 1. Otherwise, use the number stored in this file
 	
 	// Try to open file
+	NameFile = SD.open(NAME_FILE);
 	
 	// If successful, read the number on the first line
+	NextFileNumber = 0;
+	if (NameFile)
+	{
+	    if NameFile.available())
+	    {
+	        NextFileNumber = NameFile.parseInt();
+	    }
+	}
+    
+	NameFile.close();
 	
-	// If okay, use it
+	// If something went wrong ...
+	if (NextFileNumber == 0)
+	{
+        // Flag an error for user interfaces to fetch
+        
+        NextFileNumber = 1;
+        SaveNextFileNumber();
+    }
+
 	
 }
 
@@ -94,7 +116,17 @@ void OPCApp::LoadNextFileNumber (void)
 // power-up. This number is turned into a string and used to name the file.
 void OPCApp::SaveNextFileNumber (void)
 {
+    NameFile = SD.open (NAME_FILE, O_WRITE);
     
+    if (NameFile)
+    {
+        NameFile.print (NextFileNumber);
+        NameFile.close();
+    }
+    else
+    {
+        // Flag error for user interfaces
+    }
 }
 
 
@@ -106,9 +138,9 @@ void OPCApp::WriteImageFileHeader(void)
 
 // -----------------------------------------------------------------------------		
 // Move the sensor to the first pixel position of the image
-void OPCApp::MoveToStartOfImage (void)
-[
-]
+void OPCApp::MoveSensorHome (void)
+{
+}
 
 // -----------------------------------------------------------------------------	
 //void OPCApp::CaptureTask (void)

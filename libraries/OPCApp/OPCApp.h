@@ -57,7 +57,11 @@ protected:
 	void WriteImageFileHeader(void);
 	
 	// Move the sensor to the first pixel position of the image
-	void MoveToStartOfImage (void);
+	void MoveSensorHome (void);
+	
+	// Handles for the files we use - could use one handle, but this makes
+	// code a little more clear
+	File CaptureFile, NameFile;
 	
 };
 
