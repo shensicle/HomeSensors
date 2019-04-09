@@ -46,7 +46,7 @@ class WaterSensorClass : public PeriodicService
 	  IFTTTMessageClass* IFTTTSender;
 	  
   protected:
-  	  // Read the sensor and deal with the result
+ 	  // Read the sensor and deal with the result
   	  virtual void Update (void);
       
   public: 
@@ -57,10 +57,6 @@ class WaterSensorClass : public PeriodicService
     	              IFTTTMessageClass*  theIFTTTSender,
     	              SensorConfigClass*  theConfiguration);
 
-
-    // Read the sensor and return a value indicating whether or not water has
-    // been detected
-    bool WaterDetected (void);
 
 };
 

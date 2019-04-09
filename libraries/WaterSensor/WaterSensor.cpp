@@ -31,6 +31,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "WaterSensor.h"
 
+
 // -----------------------------------------------------------------------------
 WaterSensorClass::WaterSensorClass ( const unsigned char sensorPin,
     	             				 unsigned long serviceInterval, 
@@ -46,43 +47,35 @@ WaterSensorClass::WaterSensorClass ( const unsigned char sensorPin,
 }
 
 // -----------------------------------------------------------------------------
-// Read the sensor and return a flag indicating whether or not water was detected
-bool WaterSensorClass::WaterDetected (void)
-{    
-	bool returnValue = false;
-	
-	// Read the analog pin - returns a value between 0 and maxSensorReading
+void WaterSensorClass::Update (void)
+{
+	static bool waterDetectedPreviously = false;
+    static bool waterDetected = false;
+    
+    static char msgString[30];   // keep it off the stack
+      
+
+	// Read the analog pin - returns a value between 0 and 1023
 	int analogValue = analogRead(SensorPin);
 	
 	Serial.print ("Water Sensor Reading: "); Serial.println (analogValue);
 	
 	// Analog pin returns higher value when sensor is wet
 	if (analogValue > TheConfiguration->GetWaterDetectThreshold())
-	{
-		returnValue = true;
-	}
-	return (returnValue);
-}
-
-// -----------------------------------------------------------------------------
-void WaterSensorClass::Update (void)
-{
-	static bool waterDetectedPreviously = false;
-    static bool waterDetected = false;
-      
-
-    // Poll the sensor. 
-    waterDetected = WaterDetected ();
+	    waterDetected = true;
+	else
+	    waterDetected = false;
 
 
     // Now run through the FSM. We don't need to do anything if the state hasn't changed since last time
     if (waterDetected != waterDetectedPreviously)
     {
     	if (waterDetected == false)
-    		IFTTTSender->Send ("No water detected");
+    	    sprintf (msgString, "No Water detected (%d)", analogValue);
     	else
-    		IFTTTSender->Send ("Water detected");
-    	
+     	    sprintf (msgString, "Water detected (%d)", analogValue);
+   	
+    	IFTTTSender->Send (msgString);
     	waterDetectedPreviously = waterDetected;
     }
 }
