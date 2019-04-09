@@ -8,7 +8,7 @@
 #include "SensorSerialInterface.h"
 #include "SimpleLED.h"
 
-#define FIRMWARE_VERSION "V1.0"
+#define FIRMWARE_VERSION "V1.1"
 
 // Constants we use in the loop() method to serivce hardware at different intervals
 unsigned int DelayPerLoop         = 50;  // milliseconds - has to be fast enough for terminal interface
