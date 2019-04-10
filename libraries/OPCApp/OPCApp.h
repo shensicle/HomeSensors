@@ -61,7 +61,10 @@ protected:
 	
 	// Handles for the files we use - could use one handle, but this makes
 	// code a little more clear
-	File CaptureFile, NameFile;
+	File ImageFile, NameFile;
+	
+	// Return a pointer to the name of the next image file to save
+	char* GetImageFileName (void);
 	
 };
 

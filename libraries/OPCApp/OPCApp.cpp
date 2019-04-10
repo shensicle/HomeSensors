@@ -54,8 +54,10 @@ bool OPCApp::StartNewCapture (void)
 	MoveSensorHome();
 	
 	// Open the output file
+	ImageFile = SD.open (GetImageFileName());
 	
 	// Write the file header
+	WriteImageFileHeader();
 	
 	// Start the capture thread
 }
@@ -140,6 +142,16 @@ void OPCApp::WriteImageFileHeader(void)
 // Move the sensor to the first pixel position of the image
 void OPCApp::MoveSensorHome (void)
 {
+}
+
+// -----------------------------------------------------------------------------		
+// Return a pointer to the name of the next image file to save
+char* OPCApp::GetImageFileName (void)
+{
+    static char fileName[15]; // A count of up to 4,000,000,000 plus ".OPC" plus null terminator
+    
+    sprintf (fileName, "%d\.OPC", NextFileNumber);
+    return (fileName);
 }
 
 // -----------------------------------------------------------------------------	
