@@ -3,8 +3,37 @@
 
 #include "OPCApp.h"
 
+
+#define NAME_FILE "name.txt"
+
+
+// Header for the OPC raw image format. Very similar to PNG header
+static char FileHeader[] = { 
+	           0x89,    // High bit set to avoid confusion between OPC and text files
+               'O', 'P', 'C',
+               0x0d, 0x0a,      // Windows CR/LF
+               0x1a,            // EOF - causes DOS 'type' command to stop here
+               0x0a };          // Unix LF
+               
+    
+// Define the image - modelled after the PNG IHDR chunk. As in the PNG spec,
+// FilterMethod must be set to 0 (no filtering)
+// ColourType must currently be 0 (grayscale)
+// InterlaceMethod is specific to OPC and must be either INT_PROGRESSIVE or INT_ZIGZAG
+
+typedef struct ImageHeader
+{
+	unsigned long ImageWidth;
+	unsigned long ImageHeight;
+	unsigned char BitDepth;
+	unsigned char ColourType;
+	unsigned char Unused1;
+	unsigned char FilterMethod;
+	unsigned char InterlaceMethod;
+};
+
 // -----------------------------------------------------------------------------	
-void OPCap::OPCap (void)
+OPCApp::OPCApp (void)
 {
     // Set pins for motors
     
@@ -13,7 +42,7 @@ void OPCap::OPCap (void)
     // Set pins for SD card
     // if (! SD.begin(...) {};
     
-    LoadNextFileNumber (void);
+    LoadNextFileNumber ();
 }
 
 // -----------------------------------------------------------------------------	
@@ -73,7 +102,7 @@ void OPCApp::AbortCapture (void)
 	
 	    // Delete the output file from the aborted capture. Don't change the output
 	    // file name/number here. We will re-use it.
-        CaptureFile.close();  // SHOULD BE DONE IN TASK ??
+        ImageFile.close();  // SHOULD BE DONE IN TASK ??
 	    
 	    CaptureUnderway = false;
 	}
@@ -93,7 +122,7 @@ void OPCApp::LoadNextFileNumber (void)
 	NextFileNumber = 0;
 	if (NameFile)
 	{
-	    if NameFile.available())
+	    if (NameFile.available())
 	    {
 	        NextFileNumber = NameFile.parseInt();
 	    }

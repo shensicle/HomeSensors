@@ -1,6 +1,8 @@
 #ifndef _1PCAPP_H
 #define _!PCAPP_H
 
+#include <SD.h>
+
 #include "OPCAppDefs.h"
 
 // One-pixel camera application
