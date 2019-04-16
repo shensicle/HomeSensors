@@ -10,7 +10,7 @@ class OPCApp
 public:
 	
 	// Constructor - set everything up
-	OPCApp (void);
+	OPCApp (BH1750FVI* theLightMeter);
 	
 	// Set the camera resolution. Return value indicates success when set.
 	bool SetCameraResLow(void);
@@ -38,6 +38,9 @@ public:
 	{ return (CaptureUnderway); }		                  
 	
 protected:
+    
+    // Pointer to the light meter object
+    BH1750FVI*  TheLightMeter;
 	
 	// A flag which, when set, indicates that a capture is currently underway
 	bool CaptureUnderway;

@@ -115,8 +115,7 @@ bool OPCConfigClass::Load (void)
     // If there was a checksum failure, restore defaults
     if (returnValue == false)
     {
-    	Initialize ();
-    		        
+    	Initialize ();	        
     }
 		
     return (returnValue);

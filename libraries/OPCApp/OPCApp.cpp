@@ -4,14 +4,18 @@
 #include "OPCApp.h"
 
 // -----------------------------------------------------------------------------	
-void OPCap::OPCap (void)
+void OPCap::OPCap (BH1750FVI*  theLightMeter)
 {
     // Set pins for motors
     
     // Set pins for sensor platform limit switches
     
     // Set pins for SD card
+    // SHOULD PROBABLY DO ALL OF THE ABOVE IN THE SKETCH AND PASS IN OBJECTS
+    
     // if (! SD.begin(...) {};
+    
+    TheLightMeter = theLightMeter;
     
     LoadNextFileNumber (void);
 }
@@ -155,8 +159,8 @@ char* OPCApp::GetImageFileName (void)
 }
 
 // -----------------------------------------------------------------------------	
-//void OPCApp::CaptureTask (void)
-//{
+void OPCApp::CaptureTask (void)
+{
 	// For each row in the image
 	
 		// For each column in the current row
@@ -164,9 +168,11 @@ char* OPCApp::GetImageFileName (void)
 		// Move sensor
 		
 		// Read sensor
+		unsigned short lux = lightMeter.GetLightIntensity();
 		
 		// Save sensor value
+		CaptureFile.write(lux);
 		
 		// Check to make sure an abort hasn't been requested
-//}
+}
 	
