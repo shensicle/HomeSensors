@@ -48,19 +48,9 @@ OPCApp::OPCApp (BH1750FVI* theLightMeter, camera_config_t* defaultConfiguration)
     
     TheLightMeter = theLightMeter;
     
-    if (ConfigurationManager.LoadConfiguration ((char*)&TheConfiguration, (char*)defaultConfiguration) == true)
+    if (ConfigurationManager.LoadConfiguration ((char*)&TheConfiguration, (char*)defaultConfiguration) != true)
     {
-        Serial.println ("Configuration loaded");
-        Serial.print ("version: "); Serial.println (TheConfiguration.version);
-		Serial.print ("horizRes: "); Serial.println (TheConfiguration.horizRes);
-		Serial.print ("vertRes: "); Serial.println (TheConfiguration.vertRes);
-		Serial.print ("captureMode: "); Serial.println (TheConfiguration.captureMode);
-		Serial.print ("bitDepth: "); Serial.println (TheConfiguration.bitDepth);
-		Serial.println();
-    }
-    else
-    {
-        Serial.println ("Configuration set to default");
+    	// Flag an error
     }
     
     // Should deal with low and high sensor resolution here !!!
@@ -237,3 +227,14 @@ char* OPCApp::GetImageFileName (void)
 		// Check to make sure an abort hasn't been requested
 //}
 	
+// -----------------------------------------------------------------------------	
+void OPCApp::DumpConfig (void)
+{
+		Serial.println ("Configuration loaded");
+        Serial.print ("version: "); Serial.println (TheConfiguration.version);
+		Serial.print ("horizRes: "); Serial.println (TheConfiguration.horizRes);
+		Serial.print ("vertRes: "); Serial.println (TheConfiguration.vertRes);
+		Serial.print ("captureMode: "); Serial.println (TheConfiguration.captureMode);
+		Serial.print ("bitDepth: "); Serial.println (TheConfiguration.bitDepth);
+		Serial.println();
+}

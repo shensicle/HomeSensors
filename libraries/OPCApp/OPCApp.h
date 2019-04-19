@@ -39,7 +39,10 @@ public:
 	// Returns a flag which, when set, indicates that there is currently a capture
 	// in progress
 	bool CaptureInProgress (void)
-	{ return (CaptureUnderway); }		                  
+	{ return (CaptureUnderway); }		
+	
+	// For testing
+	void DumpConfig (void);
 	
 protected:
     

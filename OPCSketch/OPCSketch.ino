@@ -55,6 +55,8 @@ void setup(){
   // Uses the default SCL and SDA pins
   LightMeter.begin();
 
+  TheApplication.DumpConfig();
+
   Serial.println(F("BH1750 Test begin"));
 
 }
