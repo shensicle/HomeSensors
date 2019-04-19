@@ -1,9 +1,11 @@
-#ifndef _1PCAPP_H
-#define _!PCAPP_H
+#ifndef _OPCPCAPP_H
+#define _OPCAPP_H
 
 #include <SD.h>
+#include <BH1750FVI.h>
 
 #include "OPCAppDefs.h"
+#include "OPCConfig.h"
 
 // One-pixel camera application
 
@@ -12,7 +14,7 @@ class OPCApp
 public:
 	
 	// Constructor - set everything up
-	OPCApp (BH1750FVI* theLightMeter);
+	OPCApp (BH1750FVI* theLightMeter, camera_config_t* defaultConfiguration);
 	
 	// Set the camera resolution. Return value indicates success when set.
 	bool SetCameraResLow(void);
@@ -43,7 +45,13 @@ protected:
     
     // Pointer to the light meter object
     BH1750FVI*  TheLightMeter;
-	
+    
+    // Object to manage the configuration
+    OPCConfigClass ConfigurationManager;
+    
+    // Configuration object
+    camera_config_t TheConfiguration;
+    
 	// A flag which, when set, indicates that a capture is currently underway
 	bool CaptureUnderway;
 	
@@ -58,8 +66,9 @@ protected:
 	// power-up. This number is turned into a string and used to name the file.
 	void SaveNextFileNumber (void);
 
-	// Write the header at the start of an image file
-	void WriteImageFileHeader(void);
+	// Write the header at the start of an image file. Returns a flag which,
+	// when set, indicates that the write was successful.
+	bool WriteImageFileHeader(void);
 	
 	// Move the sensor to the first pixel position of the image
 	void MoveSensorHome (void);

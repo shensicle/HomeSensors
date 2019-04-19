@@ -24,50 +24,38 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// The definition of the configuration for the current sketch. 
-#include "OPCAppDefs.h"
 
 class OPCConfigClass
 {
     private:
-        // The buffer that stores our configuration, as layed out in EEPROM
-        camera_config_t TheConfiguration;
         		
         // Return the one's complement checksum of the configuration structure
-        unsigned char CalculateChecksum (void);
+        unsigned char CalculateChecksum (char* theConfiguration);
+        
+        // The length of the configuration structure, passed into the constructor
+        unsigned short ConfigLength;
 		        
     protected:
         // Write configuration information to EEPROM, adding a checksum
-        void Write (void);
+        void Write (char* theConfiguration);
 		
         // Read configuration information from EEPROM and validate the checksum
         // Returns true if configuration is valid and false otherwise
-        bool Read(void);
+        bool Read(char* theConfiguration);
 			
 	
   	public:
  	    
   	    // Constructor - allocate EEPROM space
-  	    OPCConfigClass (void);
-				
-  	    // Return a copy of our configuration structure
-  	    void GetConfiguration (camera_config_t* theConfiguration);
-  	    
-  	    // // Set and save camera configuration
-  	    void SetConfiguration (camera_config_t* theConfiguration);
-  	       
-		
+  	    OPCConfigClass (unsigned short configLength);
+						
   	    // Load the configuration from EEPROM. This must be called after the object is
   	    // created but before any of the other methods can be used. Returns true on success and false
   	    // if something goes wrong.
-  	    bool Load(void);
-		
-        // Clears EEPROM and writes the values provided. Used on new boards to
-        // initialize to default values. Returns false in case of hardware failure.
-        bool Initialize (void);
-        
+  	    bool LoadConfiguration(char* theConfiguration, char* defaultConfiguration);
+  	    
+  	    // Save the configuration supplied to EEPROM.
+  	    void SaveConfiguration (char* theConfiguration);        
 };
-
-
 
 #endif

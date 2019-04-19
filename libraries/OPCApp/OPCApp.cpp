@@ -14,6 +14,7 @@ static char FileHeader[] = {
                0x0d, 0x0a,      // Windows CR/LF
                0x1a,            // EOF - causes DOS 'type' command to stop here
                0x0a };          // Unix LF
+#define FILE_HEADER_LEN 8
                
     
 // Define the image - modelled after the PNG IHDR chunk. As in the PNG spec,
@@ -33,7 +34,8 @@ typedef struct ImageHeader
 };
 
 // -----------------------------------------------------------------------------	
-OPCap::OPCap (BH1750FVI*  theLightMeter)
+OPCApp::OPCApp (BH1750FVI* theLightMeter, camera_config_t* defaultConfiguration)
+    : ConfigurationManager (sizeof(camera_config_t))
 {
     // Set pins for motors
     
@@ -45,6 +47,23 @@ OPCap::OPCap (BH1750FVI*  theLightMeter)
     // if (! SD.begin(...) {};
     
     TheLightMeter = theLightMeter;
+    
+    if (ConfigurationManager.LoadConfiguration ((char*)&TheConfiguration, (char*)defaultConfiguration) == true)
+    {
+        Serial.println ("Configuration loaded");
+        Serial.print ("version: "); Serial.println (TheConfiguration.version);
+		Serial.print ("horizRes: "); Serial.println (TheConfiguration.horizRes);
+		Serial.print ("vertRes: "); Serial.println (TheConfiguration.vertRes);
+		Serial.print ("captureMode: "); Serial.println (TheConfiguration.captureMode);
+		Serial.print ("bitDepth: "); Serial.println (TheConfiguration.bitDepth);
+		Serial.println();
+    }
+    else
+    {
+        Serial.println ("Configuration set to default");
+    }
+    
+    // Should deal with low and high sensor resolution here !!!
     
     LoadNextFileNumber ();
 }
@@ -90,9 +109,13 @@ bool OPCApp::StartNewCapture (void)
 	ImageFile = SD.open (GetImageFileName());
 	
 	// Write the file header
-	WriteImageFileHeader();
+	bool returnValue = WriteImageFileHeader();
 	
-	// Start the capture thread
+	if(returnValue)
+	{
+	    // Start the capture thread
+	}
+	return (returnValue);
 }
 	
 // -----------------------------------------------------------------------------	
@@ -167,8 +190,17 @@ void OPCApp::SaveNextFileNumber (void)
 
 // -----------------------------------------------------------------------------	
 // Write the header at the start of an image file
-void OPCApp::WriteImageFileHeader(void)
+bool OPCApp::WriteImageFileHeader(void)
 {
+    bool returnValue = false;
+    
+    
+    if (ImageFile.write(FileHeader,FILE_HEADER_LEN) == FILE_HEADER_LEN)
+    {
+        if (ImageFile.write((char*)&TheConfiguration, sizeof(TheConfiguration)) == sizeof(TheConfiguration))
+            returnValue = true;
+    }
+    return (returnValue);
 }
 
 // -----------------------------------------------------------------------------		
@@ -188,8 +220,8 @@ char* OPCApp::GetImageFileName (void)
 }
 
 // -----------------------------------------------------------------------------	
-void OPCApp::CaptureTask (void)
-{
+//void OPCApp::CaptureTask (void)
+//{
 	// For each row in the image
 	
 		// For each column in the current row
@@ -197,11 +229,11 @@ void OPCApp::CaptureTask (void)
 		// Move sensor
 		
 		// Read sensor
-		unsigned short lux = lightMeter.GetLightIntensity();
+//		unsigned short lux = TheLightMeter.GetLightIntensity();
 		
 		// Save sensor value
-		CaptureFile.write(lux);
+//		ImageFile.write(lux);
 		
 		// Check to make sure an abort hasn't been requested
-}
+//}
 	

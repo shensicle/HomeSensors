@@ -28,13 +28,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ----------------------------------------------------------------------
 // Return the one's complement checksum of the configuration structure. This
 // checksum is stored in EEPROM along with the configuration itself.
-unsigned char OPCConfigClass::CalculateChecksum (void)
+unsigned char OPCConfigClass::CalculateChecksum (char* theConfiguration)
 {
-	unsigned char* configurationBytes = (unsigned char*)&TheConfiguration;
+	char* configurationBytes = theConfiguration;
 	
 	unsigned char returnValue = 0;
 	
-	for (int i = 0; i < sizeof(TheConfiguration); i++)
+	for (int i = 0; i < ConfigLength; i++)
 	{
 		returnValue += *configurationBytes++;
 	}
@@ -45,30 +45,28 @@ unsigned char OPCConfigClass::CalculateChecksum (void)
 
 // ----------------------------------------------------------------------
 // Constructor - allocate EEPROM space
-OPCConfigClass::OPCConfigClass (void)
+OPCConfigClass::OPCConfigClass (unsigned short configLength)
 {
-	
-	// Clear the configuration structure
-	memset (&TheConfiguration, 0, sizeof (TheConfiguration));
-	
+	ConfigLength = configLength;
+
     // Add 1 for the checksum
-    EEPROM.begin (sizeof(TheConfiguration)+1);
+    EEPROM.begin (ConfigLength+1);
 }
 		
 
 // ----------------------------------------------------------------------
 // Write configuration information to EEPROM, adding a checksum
-void OPCConfigClass::Write (void)
+void OPCConfigClass::Write (char* theConfiguration)
 {
     unsigned writeAddr = 0;
 	
-    unsigned char checksum = CalculateChecksum ();
+    unsigned char checksum = CalculateChecksum (theConfiguration);
 	
     // Write the data
-    EEPROM.put (writeAddr, TheConfiguration);
+    EEPROM.put (writeAddr, theConfiguration);
 	
     // Write the checksum
-    writeAddr += sizeof (TheConfiguration);
+    writeAddr += ConfigLength;
     EEPROM.put (writeAddr, checksum);
 	
     EEPROM.commit();
@@ -78,22 +76,22 @@ void OPCConfigClass::Write (void)
 // ----------------------------------------------------------------------
 // Read configuration information from EEPROM and validate the checksum
 // Returns true if configuration is valid and false otherwise
-bool OPCConfigClass::Read(void)
+bool OPCConfigClass::Read(char* theConfiguration)
 {
     bool returnValue = true;
     unsigned readAddr = 0;
 
     // Zero out configuration structure. Helps to null-terminate strings
-    memset (&TheConfiguration, 0, sizeof (TheConfiguration));
+    memset (theConfiguration, 0, ConfigLength);
 	
     // Read the data
-    EEPROM.get (readAddr, TheConfiguration);
+    EEPROM.get (readAddr, theConfiguration);
 	
     // Calculate the checksum of this data
-    unsigned char checksum  = CalculateChecksum ();
+    unsigned char checksum  = CalculateChecksum (theConfiguration);
 	
     // Read the stored checksum
-    readAddr += sizeof (camera_config_t);
+    readAddr += ConfigLength;
     unsigned char storedChecksum;
     EEPROM.get (readAddr, storedChecksum);
 
@@ -107,52 +105,18 @@ bool OPCConfigClass::Read(void)
 // Load the configuration from EEPROM. This must be called after the object is
 // created but before any of the other methods can be used. Returns 0 on success and -1
 // if something goes wrong.
-bool OPCConfigClass::Load (void)
+bool OPCConfigClass::LoadConfiguration (char* theConfiguration, char* defaultConfiguration)
 {
     // Read our configuration from EEPROM
-    bool returnValue = Read();
+    bool returnValue = Read(theConfiguration);
     
     // If there was a checksum failure, restore defaults
     if (returnValue == false)
     {
-    	Initialize ();	        
+    	memcpy (theConfiguration, defaultConfiguration, ConfigLength);
+    	Write (theConfiguration);  
     }
 		
     return (returnValue);
 }
-
-
-// ------------------------------------------------------------------------------
-// Clears EEPROM and writes the values provided. Intended to be used by
-// the initialization sketch to configure boards. 
-bool OPCConfigClass::Initialize (void)
-{
-
-	TheConfiguration.version      = CONFIGURATION_VERSION;
-	TheConfiguration.horizRes     = DEFAULT_HORIZ_RES;
-	TheConfiguration.vertRes      = DEFAULT_VERT_RES;
-	TheConfiguration.captureMode  = DEFAULT_CAPTURE_MODE;
-	TheConfiguration.bitDepth     = DEFAULT_BIT_DEPTH;
-
-	// And save
-    Write();
-}
-
-// ------------------------------------------------------------------------------
-// Set and save camera configuration
-void OPCConfigClass::SetConfiguration ( camera_config_t* theConfiguration)
-{
-    memcpy (&TheConfiguration, theConfiguration, sizeof(TheConfiguration));
-
-    // And save
-    Write();
-}
-
-// ------------------------------------------------------------------------------
-// Return a copy of our configuration structure
-void OPCConfigClass::GetConfiguration (camera_config_t* theConfiguration)
-{
-	   memcpy (theConfiguration, &TheConfiguration, sizeof(TheConfiguration));
-}
-  	    
 

@@ -28,8 +28,23 @@
 
 #include <Wire.h>
 
-BH1750FVI  lightMeter(BH1750FVI::k_DevModeContLowRes);
+// Object to manage the photodiode
+BH1750FVI  LightMeter(BH1750FVI::k_DevModeContLowRes);
 
+// Default configuration to be used if configuration stored in EEPROM is missing or corrupted
+static camera_config_t DefaultConfigurationData = 
+    {
+        OPC_CONFIGURATION_VERSION,
+        DEFAULT_HORIZ_RES,
+        DEFAULT_VERT_RES,
+        DEFAULT_CAPTURE_MODE,
+        DEFAULT_BIT_DEPTH
+    };
+
+
+// The application object
+OPCApp TheApplication (&LightMeter, &DefaultConfigurationData);    
+  
 void setup(){
 
   Serial.begin(115200);
@@ -38,7 +53,7 @@ void setup(){
   Wire.begin();
   
   // Uses the default SCL and SDA pins
-  lightMeter.begin();
+  LightMeter.begin();
 
   Serial.println(F("BH1750 Test begin"));
 
@@ -47,7 +62,7 @@ void setup(){
 void loop() 
 {
   //we use here the maxWait option due fail save
-  unsigned short lux = lightMeter.GetLightIntensity();
+  unsigned short lux = LightMeter.GetLightIntensity();
   Serial.print(F("Light: "));
   Serial.print(lux);
   Serial.println(F(" lx"));
