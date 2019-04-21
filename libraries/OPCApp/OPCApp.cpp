@@ -1,5 +1,7 @@
-#include "SD.h"
-#include "Stepper.h"
+#include <arduino.h>
+
+#include <SD.h>
+#include <Stepper.h>
 
 #include "OPCApp.h"
 
@@ -45,6 +47,7 @@ OPCApp::OPCApp (BH1750FVI* theLightMeter, camera_config_t* defaultConfiguration)
     // SHOULD PROBABLY DO ALL OF THE ABOVE IN THE SKETCH AND PASS IN OBJECTS
     
     // if (! SD.begin(...) {};
+ 
     
     TheLightMeter = theLightMeter;
     
@@ -55,7 +58,8 @@ OPCApp::OPCApp (BH1750FVI* theLightMeter, camera_config_t* defaultConfiguration)
     
     // Should deal with low and high sensor resolution here !!!
     
-    LoadNextFileNumber ();
+    // Commented out for testing
+    // LoadNextFileNumber ();
 }
 
 // -----------------------------------------------------------------------------	
@@ -132,6 +136,7 @@ void OPCApp::LoadNextFileNumber (void)
 	// Attempt to open file LastNumber.txt. If this file can't be opened, start
 	// numbering images at 1. Otherwise, use the number stored in this file
 	
+	Serial.println ("Loading file number");
 	// Try to open file
 	NameFile = SD.open(NAME_FILE);
 	
@@ -139,10 +144,15 @@ void OPCApp::LoadNextFileNumber (void)
 	NextFileNumber = 0;
 	if (NameFile)
 	{
-	    if (NameFile.available())
+		Serial.println ("Name file exists");
+	    if (NameFile.available() >= sizeof(NextFileNumber))
 	    {
-	        NextFileNumber = NameFile.parseInt();
+	    	Serial.println ("Data in name file");
+			NameFile.read ((char*)&NextFileNumber, sizeof(NextFileNumber));
+			Serial.print ("Next file name is ");Serial.println (NextFileNumber);
 	    }
+	    else
+	    	Serial.println ("No data in name file");
 	}
     
 	NameFile.close();
@@ -164,16 +174,18 @@ void OPCApp::LoadNextFileNumber (void)
 // power-up. This number is turned into a string and used to name the file.
 void OPCApp::SaveNextFileNumber (void)
 {
-    NameFile = SD.open (NAME_FILE, O_WRITE);
+    NameFile = SD.open (NAME_FILE, FILE_WRITE);
     
+    Serial.print ("Saving name file ");Serial.println (NAME_FILE);
     if (NameFile)
     {
-        NameFile.print (NextFileNumber);
+        NameFile.write ((char*)&NextFileNumber, sizeof(NextFileNumber));
         NameFile.close();
     }
     else
     {
         // Flag error for user interfaces
+        Serial.println ("Name file save failed");
     }
 }
 
@@ -185,9 +197,9 @@ bool OPCApp::WriteImageFileHeader(void)
     bool returnValue = false;
     
     
-    if (ImageFile.write(FileHeader,FILE_HEADER_LEN) == FILE_HEADER_LEN)
+    if (ImageFile.write((unsigned char*)FileHeader,FILE_HEADER_LEN) == FILE_HEADER_LEN)
     {
-        if (ImageFile.write((char*)&TheConfiguration, sizeof(TheConfiguration)) == sizeof(TheConfiguration))
+        if (ImageFile.write((unsigned char*)&TheConfiguration, sizeof(TheConfiguration)) == sizeof(TheConfiguration))
             returnValue = true;
     }
     return (returnValue);

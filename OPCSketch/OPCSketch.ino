@@ -1,3 +1,6 @@
+#include <SPI.h>
+#include <SD.h>
+
 #include <BH1750FVI.h>
 
 
@@ -47,7 +50,8 @@ OPCApp TheApplication (&LightMeter, &DefaultConfigurationData);
   
 void setup(){
 
-  Serial.begin(115200);
+  Serial.begin(9600);
+  while (!Serial);
 
   // Initialize the I2C bus
   Wire.begin();
@@ -55,7 +59,14 @@ void setup(){
   // Uses the default SCL and SDA pins
   LightMeter.begin();
 
+  if (!SD.begin())
+    Serial.println ("SD Card not working");
+   else
+    Serial.println ("SD card seems to work");
+
   TheApplication.DumpConfig();
+  Serial.println ("Loading file number");
+  TheApplication.LoadNextFileNumber();
 
   Serial.println(F("BH1750 Test begin"));
 
