@@ -99,6 +99,8 @@ bool OPCApp::StartNewCapture (void)
 	// Ensure sensor is in the right place
 	MoveSensorHome();
 	
+	NextRow = NextColumn = 0;
+	
 	// Open the output file
 	ImageFile = SD.open (GetImageFileName());
 	
@@ -222,22 +224,36 @@ char* OPCApp::GetImageFileName (void)
 }
 
 // -----------------------------------------------------------------------------	
-//void OPCApp::CaptureTask (void)
-//{
-	// For each row in the image
+void OPCApp::CaptureTask (void)
+{
 	
-		// For each column in the current row
+	// Don't do anything if we're not capturing an image
+	if (CaptureUnderway == false)
+		return;
+	
+	
+	// Move to the next column in the current row
+	NextColumn++;
+	if (NextColumn >= TheConfiguration.horizRes)
+	{
+		NextColumn = 0; NextRow++;
 		
-		// Move sensor
+		if (NextRow >= TheConfiguration.vertRes)
+		{
+			// We're done
+			AbortCapture();
+			return;
+			
+		}
+	}
+	
+	// Read sensor
+	unsigned short lux = TheLightMeter->GetLightIntensity();
 		
-		// Read sensor
-//		unsigned short lux = TheLightMeter.GetLightIntensity();
-		
-		// Save sensor value
-//		ImageFile.write(lux);
-		
-		// Check to make sure an abort hasn't been requested
-//}
+	// Save sensor value
+	ImageFile.write((char*)&lux, sizeof(lux));
+
+}
 	
 // -----------------------------------------------------------------------------	
 void OPCApp::DumpConfig (void)

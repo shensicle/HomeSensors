@@ -74,7 +74,33 @@ void setup(){
 
 void loop() 
 {
-  //we use here the maxWait option due fail save
+  static bool captureWasInProgress = false;
+
+ if (Serial.available()) 
+  {
+    // Get the new character
+    char inChar = toupper((char)Serial.read()); 
+
+    if (inChar == 'S')
+    {
+        // Start a capture
+        TheApplication.StartNewCapture();
+        captureWasInProgress = true;
+        Serial.println ("Capture started");
+    }
+    else if (inChar == 'A')
+    {
+      TheApplication.AbortCapture();
+      Serial.println ("Capture aborted");
+    }
+  }
+  
+  if (captureWasInProgress && (TheApplication.CaptureInProgress() == false))
+  {
+     Serial.println ("Capture terminated\n");
+     captureWasInProgress == false;
+  }
+
   unsigned short lux = LightMeter.GetLightIntensity();
   Serial.print(F("Light: "));
   Serial.print(lux);

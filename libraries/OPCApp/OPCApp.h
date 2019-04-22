@@ -48,7 +48,8 @@ public:
 	// Figure out the name (number) of the next file we can write to
 	void LoadNextFileNumber (void);
 	
-
+	// Called repeatedly from sketch loop() to perform the capture
+	void CaptureTask(void);
 	
 protected:
     
@@ -85,6 +86,9 @@ protected:
 	
 	// Return a pointer to the name of the next image file to save
 	char* GetImageFileName (void);
+	
+	// Coordinates of the next pixel to capture
+	unsigned short NextRow, NextColumn;
 	
 };
 
