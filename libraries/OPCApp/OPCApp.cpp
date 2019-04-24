@@ -93,6 +93,7 @@ void OPCApp::GetCameraConfig (camera_config_t* theConfig)
 // is returned.
 bool OPCApp::StartNewCapture (void)
 {
+	
 	// If there is already a capture in progress, abort it
 	AbortCapture();
 
@@ -102,14 +103,22 @@ bool OPCApp::StartNewCapture (void)
 	NextRow = NextColumn = 0;
 	
 	// Open the output file
-	ImageFile = SD.open (GetImageFileName());
+	ImageFile = SD.open (GetImageFileName(), FILE_WRITE);
+	
+	if (ImageFile)
+		{ Serial.print ("Image file "); Serial.print (GetImageFileName()); Serial.println (" opened okay"); }
+	else
+		{ Serial.print ("Image file "); Serial.print (GetImageFileName()); Serial.println (" open failed"); }
+		
 	
 	// Write the file header
 	bool returnValue = WriteImageFileHeader();
+
 	
 	if(returnValue)
 	{
 	    // Start the capture thread
+	    CaptureUnderway = true;
 	}
 	return (returnValue);
 }
@@ -198,10 +207,15 @@ bool OPCApp::WriteImageFileHeader(void)
 {
     bool returnValue = false;
     
-    
     if (ImageFile.write((unsigned char*)FileHeader,FILE_HEADER_LEN) == FILE_HEADER_LEN)
     {
-        if (ImageFile.write((unsigned char*)&TheConfiguration, sizeof(TheConfiguration)) == sizeof(TheConfiguration))
+    	Serial.println ("Now writing image configuration");
+    	
+    	int bytesWritten = ImageFile.write((unsigned char*)&TheConfiguration, sizeof(TheConfiguration));
+    	Serial.print ("Wrote "); Serial.print (bytesWritten); Serial.println (" bytes of config data.");
+    	Serial.print ("Should have written ");Serial.println (sizeof(TheConfiguration));
+        if (bytesWritten == sizeof(TheConfiguration))
+ //       if (ImageFile.write((unsigned char*)&TheConfiguration, sizeof(TheConfiguration)) == sizeof(TheConfiguration))
             returnValue = true;
     }
     return (returnValue);
@@ -219,7 +233,7 @@ char* OPCApp::GetImageFileName (void)
 {
     static char fileName[15]; // A count of up to 4,000,000,000 plus ".OPC" plus null terminator
     
-    sprintf (fileName, "%d\.OPC", NextFileNumber);
+    sprintf (fileName, "IMG_%d\.OPC", NextFileNumber);
     return (fileName);
 }
 
@@ -234,14 +248,19 @@ void OPCApp::CaptureTask (void)
 	
 	// Move to the next column in the current row
 	NextColumn++;
+
 	if (NextColumn >= TheConfiguration.horizRes)
 	{
 		NextColumn = 0; NextRow++;
+	Serial.print ("Moving to row ");Serial.println (NextRow);
 		
 		if (NextRow >= TheConfiguration.vertRes)
 		{
+			Serial.println ("We're done");
 			// We're done
 			AbortCapture();
+			NextFileNumber++;
+			SaveNextFileNumber();
 			return;
 			
 		}
@@ -249,6 +268,7 @@ void OPCApp::CaptureTask (void)
 	
 	// Read sensor
 	unsigned short lux = TheLightMeter->GetLightIntensity();
+//	Serial.print ("Read "); Serial.println(lux);
 		
 	// Save sensor value
 	ImageFile.write((char*)&lux, sizeof(lux));

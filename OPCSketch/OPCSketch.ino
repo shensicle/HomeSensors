@@ -94,17 +94,20 @@ void loop()
       Serial.println ("Capture aborted");
     }
   }
+
+  TheApplication.CaptureTask();
   
   if (captureWasInProgress && (TheApplication.CaptureInProgress() == false))
   {
      Serial.println ("Capture terminated\n");
-     captureWasInProgress == false;
+     captureWasInProgress = false;
   }
 
-  unsigned short lux = LightMeter.GetLightIntensity();
-  Serial.print(F("Light: "));
-  Serial.print(lux);
-  Serial.println(F(" lx"));
+//  unsigned short lux = LightMeter.GetLightIntensity();
+//  Serial.print(F("Light: "));
+//  Serial.print(lux);
+//  Serial.println(F(" lx"));
 
-  delay(5000);
+//  delay(5000);
+  delay(1);
 }
