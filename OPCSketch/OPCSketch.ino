@@ -38,10 +38,13 @@ BH1750FVI  LightMeter(BH1750FVI::k_DevModeContLowRes);
 static camera_config_t DefaultConfigurationData = 
     {
         OPC_CONFIGURATION_VERSION,
-        DEFAULT_HORIZ_RES,
-        DEFAULT_VERT_RES,
-        DEFAULT_CAPTURE_MODE,
-        DEFAULT_BIT_DEPTH
+        DEFAULT_IMAGE_WIDTH,
+        DEFAULT_IMAGE_HEIGHT,
+        DEFAULT_BIT_DEPTH,
+        DEFAULT_COLOUR_MODE,
+        0,                     // unused field
+        DEFAULT_FILTER_METHOD,
+        DEFAULT_SCAN_TYPE
     };
 
 

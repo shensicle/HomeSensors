@@ -249,12 +249,12 @@ void OPCApp::CaptureTask (void)
 	// Move to the next column in the current row
 	NextColumn++;
 
-	if (NextColumn >= TheConfiguration.horizRes)
+	if (NextColumn >= TheConfiguration.imageWidth)
 	{
 		NextColumn = 0; NextRow++;
 	Serial.print ("Moving to row ");Serial.println (NextRow);
 		
-		if (NextRow >= TheConfiguration.vertRes)
+		if (NextRow >= TheConfiguration.imageHeight)
 		{
 			Serial.println ("We're done");
 			// We're done
@@ -280,9 +280,11 @@ void OPCApp::DumpConfig (void)
 {
 		Serial.println ("Configuration loaded");
         Serial.print ("version: "); Serial.println (TheConfiguration.version);
-		Serial.print ("horizRes: "); Serial.println (TheConfiguration.horizRes);
-		Serial.print ("vertRes: "); Serial.println (TheConfiguration.vertRes);
-		Serial.print ("captureMode: "); Serial.println (TheConfiguration.captureMode);
+		Serial.print ("imageWidth: "); Serial.println (TheConfiguration.imageWidth);
+		Serial.print ("imageHeight: "); Serial.println (TheConfiguration.imageHeight);
 		Serial.print ("bitDepth: "); Serial.println (TheConfiguration.bitDepth);
+		Serial.print ("colourType: "); Serial.println (TheConfiguration.colourType);
+		Serial.print ("filterMethod: "); Serial.println (TheConfiguration.filterMethod);
+		Serial.print ("scanType: "); Serial.println (TheConfiguration.scanType);
 		Serial.println();
 }
