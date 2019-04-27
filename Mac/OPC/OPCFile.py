@@ -3,8 +3,10 @@ import sys
 from struct import *
 
 
-OPCImageHeader = {'Version': None, 'ImageWidth': None, 'ImageHeight': None, 'BitDepth': None, 'ColourType': None, 
-	              'Unused1': None, 'FilterMethod': None, 'ScanType': None }
+#OPCImageHeaderFields = {'Version': None, 'ImageWidth': None, 'ImageHeight': None, 'BitDepth': None, 'ColourType': None, 
+#	                    'Unused1': None, 'FilterMethod': None, 'ScanType': None }
+
+OPCImageHeaderFields = ('Version', 'ImageWidth', 'ImageHeight', 'BitDepth', 'ColourType', 'Unused1', 'FilterMethod', 'ScanType')
 
 
 # this is a pointer to the module object instance itself.
@@ -25,6 +27,7 @@ def open_file (name):
     # Read file header (8 bytes? Maybe 10)
     with open(this.FileName, mode='rb') as file: # b is important -> binary
 
+        # Read OPC file header
         fileContent = file.read(8)    # number of bytes in OPC header
 		
         print "File content: ",fileContent, "\n"
@@ -33,17 +36,17 @@ def open_file (name):
         
         # otherwise should throw an exception
  
- 	    # Read image header (17 bytes)	
+ 	    # Read image header (17 bytes)
         imageHeader = file.read(17)
 
-#        OPCImageHeader = unpack ('3I 5B', imageHeader)
+        # Convert binary header to a Python list
+        OPCImageHeaderValues = unpack ('3I 5B', imageHeader)
 
-        print "Now result is ", OPCImageHeader, "(", OPCImageHeader[1], ")\n"
+        # Create a dictionary of field names (keys) and field values
+        zipObj = zip(OPCImageHeaderFields, OPCImageHeaderValues)
+        OPCImageHeader = dict(zipObj)
+    
+        print "Now result is ", OPCImageHeader, "\n"
 	
-#        nextLine = file.read(OPCImageHeader[1]);
+        nextLine = file.read(OPCImageHeader['ImageHeight']);
 	
-#	with open("myfile", "rb") as f:
-#    byte = f.read(1)
-#    while byte != "":
-        # Do stuff with byte.
-#        byte = f.read(1)
