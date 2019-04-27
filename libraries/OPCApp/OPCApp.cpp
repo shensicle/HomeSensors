@@ -18,23 +18,6 @@ static char FileHeader[] = {
                0x0a };          // Unix LF
 #define FILE_HEADER_LEN 8
                
-    
-// Define the image - modelled after the PNG IHDR chunk. As in the PNG spec,
-// FilterMethod must be set to 0 (no filtering)
-// ColourType must currently be 0 (grayscale)
-// InterlaceMethod is specific to OPC and must be either INT_PROGRESSIVE or INT_ZIGZAG
-
-typedef struct ImageHeader
-{
-	unsigned long ImageWidth;
-	unsigned long ImageHeight;
-	unsigned char BitDepth;
-	unsigned char ColourType;
-	unsigned char Unused1;
-	unsigned char FilterMethod;
-	unsigned char InterlaceMethod;
-};
-
 // -----------------------------------------------------------------------------	
 OPCApp::OPCApp (BH1750FVI* theLightMeter, camera_config_t* defaultConfiguration)
     : ConfigurationManager (sizeof(camera_config_t))
@@ -185,12 +168,13 @@ void OPCApp::LoadNextFileNumber (void)
 // power-up. This number is turned into a string and used to name the file.
 void OPCApp::SaveNextFileNumber (void)
 {
+	SD.remove(NAME_FILE);   // because seek, truncate and open for truncate aren't implemented in 8266
     NameFile = SD.open (NAME_FILE, FILE_WRITE);
     
     Serial.print ("Saving name file ");Serial.println (NAME_FILE);
     if (NameFile)
     {
-        NameFile.write ((char*)&NextFileNumber, sizeof(NextFileNumber));
+    	NameFile.write ((char*)&NextFileNumber, sizeof(NextFileNumber));
         NameFile.close();
     }
     else
