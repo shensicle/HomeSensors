@@ -1,6 +1,7 @@
 # OPCFile.py
 import sys
 from struct import *
+import png
 
 
 #OPCImageHeaderFields = {'Version': None, 'ImageWidth': None, 'ImageHeight': None, 'BitDepth': None, 'ColourType': None, 
@@ -24,7 +25,7 @@ def open_file (name):
 
     expectedHeader = "\x89OPC\x0d\x0a\x1a\x0a"
     
-    # Read file header (8 bytes? Maybe 10)
+    # Read file header (8 bytes)
     with open(this.FileName, mode='rb') as file: # b is important -> binary
 
         # Read OPC file header
@@ -47,6 +48,26 @@ def open_file (name):
         OPCImageHeader = dict(zipObj)
     
         print "Now result is ", OPCImageHeader, "\n"
+        
+        pngFile = open ('Out.png', 'wb')
+        w = png.Writer (OPCImageHeader['ImageWidth']*2, OPCImageHeader['ImageHeight'], greyscale=True, bitdepth=16)
 	
-        nextLine = file.read(OPCImageHeader['ImageHeight']);
+        nextLine = file.read(OPCImageHeader['ImageWidth']*2);
+        print "data as list is ", list(nextLine), "\n"
+        
+        binDataList = []
+        
+        while len(nextLine) != 600:
+            lineAsList = list (nextLine)
+            binData = [ord(lineAsList[i]) for i in range(len(lineAsList))]
+            binDataList.append(binData)
+            print "data list length is now ", len(binDataList), "\n"
+            nextLine = file.read(OPCImageHeader['ImageWidth']*2);
+
+        print "Full list is ", binDataList, "\n"
+        w.write (pngFile, binDataList)  #write needs a list of integers
+ 
+            
+        close (pngFile)
+        print "Done\n"
 	
