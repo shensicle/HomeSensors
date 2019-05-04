@@ -2,10 +2,12 @@ package OPCFile;
  
 use strict;
 use warnings;
- 
+
+# Defining hash keys here so we know what the fields are
 our %ImageConfig = {Version => undef, ImageWidth => undef, ImageHeight => undef, BitDepth => undef,
                      ColourType => undef, Unused1 => undef, FilterMethod => undef, ScanType => undef };
 
+# ==============================================================================
 # init with file name
 sub new
 {
@@ -35,16 +37,13 @@ sub open
    die 'OPC file header is invalid' unless $bytes eq $expectedHeader;
    
    # Next read the image configuration
-   $bytes_read = read $self->{_fh}, $bytes, 17;
-   die 'Unable to read image configuration' unless $bytes_read == 17;
+   $bytes_read = read $self->{_fh}, $bytes, 32;
+   die 'Unable to read image configuration' unless $bytes_read == 32;
   
   
    ($ImageConfig{Version}, $ImageConfig{ImageWidth}, $ImageConfig{ImageHeight}, 
     $ImageConfig{BitDepth}, $ImageConfig{ColourType}, $ImageConfig{Unused1},
-    $ImageConfig{FilterMethod}, $ImageConfig{ScanType})  = unpack( "IIICCCCC", "$bytes" );
-    
-    # FIX BIT DEPTH FOR NOW - DELETE THIS CODE
-    $ImageConfig{BitDepth} = ($ImageConfig{BitDepth}+1)*8;
+    $ImageConfig{FilterMethod}, $ImageConfig{ScanType})  = unpack( "IIIIIIII", "$bytes" );
     
    $self->{_imageConfig} = \%ImageConfig; 
     
@@ -67,8 +66,8 @@ sub get_rows
    {
        read $self->{_fh}, $rowList[$rowCount], $width*2;
        
-       # Account for ZigZag encoding - CHECK SCAN TYPE IS ZERO - SHOULD BE 1
-       if (0 == $rowCount % 2) # && ($config->{ScanType} == 0))
+       # Account for ZigZag encoding 
+       if ((0 == $rowCount % 2)  && ($config->{ScanType} == 1))
        {
            $rowList[$rowCount] = scalar reverse $rowList[$rowCount]
        }
