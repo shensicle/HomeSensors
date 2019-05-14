@@ -43,6 +43,8 @@ OPCApp::OPCApp (BH1750FVI* theLightMeter, camera_config_t* defaultConfiguration)
     
     // Commented out for testing
     // LoadNextFileNumber ();
+    
+    MoveSensorToHome();
 }
 
 // -----------------------------------------------------------------------------	
@@ -58,13 +60,13 @@ bool OPCApp::SetCameraResHi(void)
 	
 // -----------------------------------------------------------------------------	
 // Set the camera configuration. If parameters are invalid, a false is returned
-// and current camera configuration is not modified.                                                     
+// and current camera configuration is not modified. Used by user interfaces.                                                    
 bool OPCApp::SetCameraConfig (camera_config_t* theConfig)
 {
 }
 	
 // -----------------------------------------------------------------------------	
-// Get the current camera configuration
+// Get the current camera configuration. Used by user interfaces.
 void OPCApp::GetCameraConfig (camera_config_t* theConfig)
 {
 }
@@ -119,6 +121,8 @@ void OPCApp::AbortCapture (void)
 	    // file name/number here. We will re-use it.
         ImageFile.close();  // SHOULD BE DONE IN TASK ??
 	    
+        MoveSensorHome();
+        
 	    CaptureUnderway = false;
 	}
 }
@@ -209,6 +213,15 @@ bool OPCApp::WriteImageFileHeader(void)
 // Move the sensor to the first pixel position of the image
 void OPCApp::MoveSensorHome (void)
 {
+    // If we're already home, don't need to do anything
+    
+    // Otherwise, if we know where we are, we can move the sensor quickly in
+    // large steps
+    
+    // Otherwise, take a cautious approach and move the sensor slowly until the 
+    // home pins are activated. When we're done, flag that we know where we are.
+    // This is only likely to happen on power-off while the sensor is not home.
+    
 }
 
 // -----------------------------------------------------------------------------		
@@ -229,26 +242,8 @@ void OPCApp::CaptureTask (void)
 	if (CaptureUnderway == false)
 		return;
 	
-	
-	// Move to the next column in the current row
-	NextColumn++;
-
-	if (NextColumn >= TheConfiguration.imageWidth)
-	{
-		NextColumn = 0; NextRow++;
-	Serial.print ("Moving to row ");Serial.println (NextRow);
-		
-		if (NextRow >= TheConfiguration.imageHeight)
-		{
-			Serial.println ("We're done");
-			// We're done
-			AbortCapture();
-			NextFileNumber++;
-			SaveNextFileNumber();
-			return;
-			
-		}
-	}
+	// Sensor was moved home before the capture started, so just take a reading
+	// at current location and then move to the next pixel.
 	
 	// Read sensor
 	unsigned short lux = TheLightMeter->GetLightIntensity();
@@ -257,6 +252,46 @@ void OPCApp::CaptureTask (void)
 	// Save sensor value
 	ImageFile.write((char*)&lux, sizeof(lux));
 
+	// If we are currently on an even-numbered row
+	if ((NextRow % 2) == 0)
+	{
+	    // Move in the positive direction
+	    NextColumn++;
+	    
+	    // If we're at the end of the row
+	    if (NextColumn == TheConfiguration.imageWidth)
+	    {
+	        // Move back one pixel so will start the odd row at the right
+	        NextColumn --;
+	        
+	        // Move to the next row
+	        NextRow ++;
+	    }
+	}
+	else      // we are currently on an odd-numbered row
+	{
+	    if (NextColumn == 0)
+	    {
+	        // We're at the right column - advance to the next row
+	        NextRow++;
+	    }
+	    else
+	    {
+	        NextColumn --;
+	    }
+	}
+	
+    // In either case, if we have captured all of the rows ...	
+	if (NextRow >= TheConfiguration.imageHeight)
+	{
+		Serial.println ("We're done");
+		// We're done
+		AbortCapture();
+		
+		NextFileNumber++;
+		SaveNextFileNumber();
+		return;
+	}
 }
 	
 // -----------------------------------------------------------------------------	
