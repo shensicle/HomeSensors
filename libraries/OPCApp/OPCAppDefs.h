@@ -3,8 +3,8 @@
 
 	typedef enum bit_depth_t 
 	{
-		bit_depth_8        = 0x00,
-		bit_depth_16       = 0x01
+		bit_depth_8        = 8,
+		bit_depth_16       = 16
 	};
 	
 	typedef enum colour_mode_t

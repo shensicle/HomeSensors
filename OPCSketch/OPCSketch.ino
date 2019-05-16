@@ -53,7 +53,7 @@ OPCApp TheApplication (&LightMeter, &DefaultConfigurationData);
   
 void setup(){
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial);
 
   // Initialize the I2C bus
@@ -112,5 +112,5 @@ void loop()
 //  Serial.println(F(" lx"));
 
 //  delay(5000);
-  delay(1);
+//  delay(1);
 }

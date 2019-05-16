@@ -82,11 +82,6 @@ bool OPCApp::StartNewCapture (void)
 	// If there is already a capture in progress, abort it
 	AbortCapture();
 
-	// Ensure sensor is in the right place
-	MoveSensorHome();
-	
-	NextRow = NextColumn = 0;
-	
 	// Open the output file
 	ImageFile = SD.open (GetImageFileName(), FILE_WRITE);
 	
@@ -115,11 +110,9 @@ void OPCApp::AbortCapture (void)
 	// Only do something if there is currently a capture underway
 	if (CaptureUnderway)
 	{
-	    // Signal the capture thread to stop and wait until it does
-	
 	    // Delete the output file from the aborted capture. Don't change the output
 	    // file name/number here. We will re-use it.
-        ImageFile.close();  // SHOULD BE DONE IN TASK ??
+        ImageFile.close(); 
 	    
         MoveSensorHome();
         
@@ -213,15 +206,46 @@ bool OPCApp::WriteImageFileHeader(void)
 // Move the sensor to the first pixel position of the image
 void OPCApp::MoveSensorHome (void)
 {
-    // If we're already home, don't need to do anything
-    
-    // Otherwise, if we know where we are, we can move the sensor quickly in
-    // large steps
-    
-    // Otherwise, take a cautious approach and move the sensor slowly until the 
-    // home pins are activated. When we're done, flag that we know where we are.
-    // This is only likely to happen on power-off while the sensor is not home.
-    
+	HorizMotor.setSpeed(10);    	
+    VertMotor.setSpeed(10);
+
+    // If NextRow and NextColumn are both zero, we were likely called from the
+    // constructor and don't know where we are (power up). 
+    if ((NextRow == 0) && (NextColumn == 0))
+    {
+    	// Set speed fast, but only move one step at a time so we don' run off the
+    	// end of the sensor area
+    	while (digitalRead(HorizStopPin) == HIGH)
+    	{
+    		HorizMotor.step(-1);
+    	}
+    	
+     	while (digitalRead(VertStopPin) == HIGH)
+    	{
+    		VertMotor.step(-1);
+    	}
+    }
+    else 
+    {
+    	// We know where we are
+    	
+    	HorizMotor.step (-1 * NextRow * StepsPerRow);
+    	VertMotor.step  (-1 * NextColumn * StepsPerColumn);
+    	
+    	NextColumn = NextRow = 0;
+    	
+    	if (digitalRead(HorizStopPin) == HIGH)
+    	{
+    		// Log an error
+    	}
+    	if (digitalRead(VertStopPin) == HIGH)
+    	{
+    		// Log an error
+    	}
+    }
+   	
+    HorizMotor.setSpeed(ScanSpeed);
+    VertMotor.setSpeed(ScanSpeed);
 }
 
 // -----------------------------------------------------------------------------		
@@ -266,6 +290,11 @@ void OPCApp::CaptureTask (void)
 	        
 	        // Move to the next row
 	        NextRow ++;
+	        VertMotor.step (StepsPerRow);
+	    }
+	    else
+	    {	
+	    	HorizMotor.step (StepsPerColumn);
 	    }
 	}
 	else      // we are currently on an odd-numbered row
@@ -274,10 +303,13 @@ void OPCApp::CaptureTask (void)
 	    {
 	        // We're at the right column - advance to the next row
 	        NextRow++;
+	        VertMotor.step (StepsPerRow);
 	    }
 	    else
 	    {
 	        NextColumn --;
+	        HorizMotor.step (-StepsPerColumn);
+
 	    }
 	}
 	
