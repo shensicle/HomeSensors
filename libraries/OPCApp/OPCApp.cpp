@@ -44,7 +44,7 @@ OPCApp::OPCApp (BH1750FVI* theLightMeter, camera_config_t* defaultConfiguration)
     // Commented out for testing
     // LoadNextFileNumber ();
     
-    MoveSensorToHome();
+    MoveSensorHome();
 }
 
 // -----------------------------------------------------------------------------	
@@ -139,7 +139,7 @@ void OPCApp::LoadNextFileNumber (void)
 	    if (NameFile.available() >= sizeof(NextFileNumber))
 	    {
 	    	Serial.println ("Data in name file");
-			NameFile.read ((char*)&NextFileNumber, sizeof(NextFileNumber));
+			NameFile.read ((uint8_t*)&NextFileNumber, sizeof(NextFileNumber));
 			Serial.print ("Next file name is ");Serial.println (NextFileNumber);
 	    }
 	    else
@@ -171,7 +171,7 @@ void OPCApp::SaveNextFileNumber (void)
     Serial.print ("Saving name file ");Serial.println (NAME_FILE);
     if (NameFile)
     {
-    	NameFile.write ((char*)&NextFileNumber, sizeof(NextFileNumber));
+    	NameFile.write ((uint8_t*)&NextFileNumber, sizeof(NextFileNumber));
         NameFile.close();
     }
     else
