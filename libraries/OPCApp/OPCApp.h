@@ -3,6 +3,7 @@
 
 #include <SD.h>
 #include <BH1750FVI.h>
+#include <Stepper.h>
 
 #include "OPCAppDefs.h"
 #include "OPCConfig.h"
