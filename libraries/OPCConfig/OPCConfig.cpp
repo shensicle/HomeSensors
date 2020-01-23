@@ -50,7 +50,8 @@ OPCConfigClass::OPCConfigClass (unsigned short configLength)
 	ConfigLength = configLength;
 
     // Add 1 for the checksum
-    EEPROM.begin (ConfigLength+1);
+//    EEPROM.begin (ConfigLength+1);
+
 }
 		
 
@@ -69,7 +70,7 @@ void OPCConfigClass::Write (char* theConfiguration)
     writeAddr += ConfigLength;
     EEPROM.put (writeAddr, checksum);
 	
-    EEPROM.commit();
+//    EEPROM.commit();
 }
 		
 
