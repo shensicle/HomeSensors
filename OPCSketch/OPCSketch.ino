@@ -60,6 +60,7 @@ static camera_config_t DefaultConfigurationData =
 
 // Button stuff
 #define BUTTON_PIN 3  // must be a pin that can generate an interrupt
+bool ButtonPressed = false;
 
 // Stepper motor stuff
  
@@ -87,7 +88,8 @@ OPCApp TheApplication (&LightMeter, &DefaultConfigurationData);
 // Interrupt handler invoked when button is pressed
 void ButtonPress()
 {
-
+  // The work is done in the main loop
+  ButtonPressed = true;
 }
 
 // ----------------------------------------------------------------------
@@ -137,7 +139,8 @@ void loop()
 {
   static bool captureWasInProgress = false;
 
-  
+
+    // Deal with keyboard inputs - delete after prototyping
     if (Serial.available())
     {
       // Get the new character
@@ -154,12 +157,32 @@ void loop()
       else if (inChar == 'A')
       {
         TheApplication.AbortCapture();
+        captureWasInProgress = false;
         Serial.println ("Capture aborted");
       }
     }
 
+    // Deal with the camera button
+    if (ButtonPressed == true)
+    {
+      ButtonPressed = false;
+      if (captureWasInProgress)
+      {
+          TheApplication.AbortCapture();
+          captureWasInProgress = false;
+          Serial.println ("Capture aborted (button)");
+      }
+      else
+      {
+          TheApplication.StartNewCapture();
+          captureWasInProgress = true;
+          Serial.println ("Capture started (button)");
+      }      
+    }
+
     // TheApplication.CaptureTask();
 
+    // Case where capture is complete
     if (captureWasInProgress && (TheApplication.CaptureInProgress() == false))
     {
        Serial.println ("Capture terminated\n");
