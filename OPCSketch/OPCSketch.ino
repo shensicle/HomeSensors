@@ -9,6 +9,17 @@
 // Light sensor library
 #include <BH1750FVI.h>
 
+// LCD Display
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+Adafruit_SSD1306 Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
 
 #include "OPCConfig.h"
 #include "OPCApp.h"
@@ -107,24 +118,42 @@ void setup() {
   // Initialize SPI bus
   // Shouldn't need this   SPI.begin(18,19,23);
 
+  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  if(!Display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) 
+  { 
+    // Turn on fault LED
+    
+    Serial.println(F("LCD initialization failed"));
+    for(;;); // Don't proceed, loop forever
+  }
+
   // Uses the default SCL and SDA pins
   LightMeter.begin();
 
-  if (SD.begin() == true)
-   Serial.println ("SD card seems to work");
-  else
+  if (SD.begin() != true)
+  {
+     // @@ LCD display error and stop
      Serial.println ("SD Card not working");
 
+     for(;;); // Don't proceed, loop forever
+  }
   
-    TheApplication.DumpConfig();
-    Serial.println ("Loading file number");
-    TheApplication.LoadNextFileNumber();
+  TheApplication.DumpConfig();
+  Serial.println ("Loading file number");
+  TheApplication.LoadNextFileNumber();
   
-    // Set up the push button
-    pinMode (BUTTON_PIN, INPUT);
-    digitalWrite (BUTTON_PIN, HIGH);  // enable internal pullup resistor
-    attachInterrupt (digitalPinToInterrupt(BUTTON_PIN), ButtonPress, FALLING);
+  // Set up the push button
+  pinMode (BUTTON_PIN, INPUT);
+  digitalWrite (BUTTON_PIN, HIGH);  // enable internal pullup resistor
+  attachInterrupt (digitalPinToInterrupt(BUTTON_PIN), ButtonPress, FALLING);
 
+  // Set up limit switches ???
+  
+  // Home sensor
+  // @@@ Update Display
+  // Move sensor
+  // @@@ Display ready
+  
   Serial.println(F("BH1750 Test begin"));
 
   // Rotate CCW 1/2 turn quickly
@@ -140,52 +169,51 @@ void loop()
   static bool captureWasInProgress = false;
 
 
-    // Deal with keyboard inputs - delete after prototyping
+    // Deal with keyboard inputs - 'S' key emulates camera shutter button
+    int inChar = -1'
+    
     if (Serial.available())
     {
       // Get the new character
-      char inChar = toupper((char)Serial.read());
-
-      if (inChar == 'S')
+      inChar = toupper((char)Serial.read());
+    }
+    
+      if ((inChar == 'S') || (ButtonPressed == true))
       {
+        inChar = -1; ButtonPressed = false;
+        
+        if (captureWasInProgress)
+        {
+            // @@@ LCD display aborting
+            TheApplication.AbortCapture();
+            captureWasInProgress = false;
+            
+            // @@@ LCD display ready
+            Serial.println ("Capture aborted");
+            
+        }
+        else
+        {
           // Start a capture
           TheApplication.StartNewCapture();
           captureWasInProgress = true;
+          
+          // @@@ Display 0% complete
           Serial.println ("Capture started");
+        }
       }
-
-      else if (inChar == 'A')
+     
+      if (captureWasInProgess)
       {
-        TheApplication.AbortCapture();
-        captureWasInProgress = false;
-        Serial.println ("Capture aborted");
+        // TheApplication.CaptureTask();
+        // @@@ Display new %complete
       }
-    }
-
-    // Deal with the camera button
-    if (ButtonPressed == true)
-    {
-      ButtonPressed = false;
-      if (captureWasInProgress)
-      {
-          TheApplication.AbortCapture();
-          captureWasInProgress = false;
-          Serial.println ("Capture aborted (button)");
-      }
-      else
-      {
-          TheApplication.StartNewCapture();
-          captureWasInProgress = true;
-          Serial.println ("Capture started (button)");
-      }      
-    }
-
-    // TheApplication.CaptureTask();
-
+      
     // Case where capture is complete
     if (captureWasInProgress && (TheApplication.CaptureInProgress() == false))
     {
-       Serial.println ("Capture terminated\n");
+       // @@@ Display capture complete
+       Serial.println ("Capture complete\n");
        captureWasInProgress = false;
     }
   
