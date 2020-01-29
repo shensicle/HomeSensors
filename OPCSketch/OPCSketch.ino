@@ -124,8 +124,7 @@ void setup() {
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!Display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) 
   { 
-    // Turn on fault LED
-    
+    // Serial port will tell us what's wrong
     Serial.println(F("LCD initialization failed"));
     for(;;); // Don't proceed, loop forever
   }
@@ -135,24 +134,30 @@ void setup() {
   Display.setTextSize(1);             // Normal 1:1 pixel scale
   Display.setTextColor(WHITE);        // Draw white text
   Display.setCursor(0,0);             // Start at top-left corner
-  Display.print(F("OPC ")); Display.print (OPC_VERSION);
+  Display.println (F("One-pixel Camera:")); 
+  Display.setCursor(0,10);             // Status line
+  Display.setTextSize(2);             
+  Display.display();
 
-  Display.setCursor(3,0);             // Status line
-  Display.print(F("Status: "));
+  Display.print (OPC_VERSION);
+
 
   // Uses the default SCL and SDA pins
   LightMeter.begin();
 
   if (SD.begin() != true)
   {
-     // @@ LCD display error and stop
+     // LCD display error and stop
+//     Display.setTextColor (YELLOW);
+     Display.print (F("SD card failure"));
+     Display.display();
      Serial.println ("SD Card not working");
 
      for(;;); // Don't proceed, loop forever
   }
   
   TheApplication.DumpConfig();
-  Serial.println ("Loading file number");
+  Serial.println F(("Loading file number"));
   TheApplication.LoadNextFileNumber();
   
   // Set up the push button
@@ -163,9 +168,20 @@ void setup() {
   // Set up limit switches ???
   
   // Home sensor
-  // @@@ Update Display
-  // Move sensor
-  // @@@ Display ready
+  Display.setTextColor (WHITE);
+  Display.print (F("Homing Sensor"));
+  Display.display();
+  Serial.println (F("Homing Sensor"));
+
+  // Move the sensor home
+
+
+  // Update Display
+  Display.fillRect(0,10,20,95,BLACK); // Clear status line
+  Display.setCursor(0,10);             // Status line
+  Display.print (OPC_VERSION);
+  Display.display();
+
   
   Serial.println(F("BH1750 Test begin"));
 
