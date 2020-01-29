@@ -9,6 +9,9 @@
 // Light sensor library
 #include <BH1750FVI.h>
 
+// Version of this software
+#define OPC_VERSION "V.01"
+
 // LCD Display
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -127,6 +130,16 @@ void setup() {
     for(;;); // Don't proceed, loop forever
   }
 
+  // Display system information
+  Display.clearDisplay();
+  Display.setTextSize(1);             // Normal 1:1 pixel scale
+  Display.setTextColor(WHITE);        // Draw white text
+  Display.setCursor(0,0);             // Start at top-left corner
+  Display.print(F("OPC ")); Display.print (OPC_VERSION);
+
+  Display.setCursor(3,0);             // Status line
+  Display.print(F("Status: "));
+
   // Uses the default SCL and SDA pins
   LightMeter.begin();
 
@@ -170,7 +183,7 @@ void loop()
 
 
     // Deal with keyboard inputs - 'S' key emulates camera shutter button
-    int inChar = -1'
+    int inChar = -1;
     
     if (Serial.available())
     {
@@ -203,7 +216,7 @@ void loop()
         }
       }
      
-      if (captureWasInProgess)
+      if (captureWasInProgress)
       {
         // TheApplication.CaptureTask();
         // @@@ Display new %complete
