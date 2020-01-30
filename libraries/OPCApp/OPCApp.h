@@ -1,4 +1,4 @@
-#ifndef _OPCPCAPP_H
+#ifndef _OPCAPP_H
 #define _OPCAPP_H
 
 #include <SD.h>
