@@ -30,7 +30,7 @@ public:
             HeaderTextSize (1),
             StatusTextSize (2);
     
-    bool DisplayIsInitialized (void) { return DisplayInitialized; }
+    bool DisplayIsInitialized (void) { return IsInitialized; }
     
     void DisplayBannerLine (char* theTitle);
     
