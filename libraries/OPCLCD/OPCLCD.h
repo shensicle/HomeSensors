@@ -32,12 +32,15 @@ public:
     
     bool DisplayIsInitialized (void) { return DisplayInitialized; }
     
+    // Banner text goes at the top of the display
     void DisplayBannerLine (char* theTitle);
     
+    // Header text introduces the status
     void DisplayHeadingLine (char* theHeading = "Status:");
     
-    void DisplayStatusLine (char* theStatus);
-    
+    // What's currently going on
+    void DisplayStatusLine (char* theStatus); 
+    void DisplayStatusPercent (int statusVal, char* suffix = " %");
 	
 	
 protected:
@@ -51,9 +54,7 @@ protected:
     bool IsInitialized = false;
     
     void ClearStatusArea();
-    
-    
-	
+    	
 };
 
 #endif
