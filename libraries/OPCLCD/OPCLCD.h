@@ -30,7 +30,7 @@ public:
             HeaderTextSize (1),
             StatusTextSize (2);
     
-    bool DisplayIsInitialized (void) { return DisplayInitialized; }
+    bool DisplayIsInitialized (void) { return IsInitialized; }
     
     // Banner text goes at the top of the display
     void DisplayBannerLine (char* theTitle);
