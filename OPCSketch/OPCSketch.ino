@@ -12,20 +12,9 @@
 // Version of this software
 #define OPC_VERSION "V.01"
 
-// LCD Display
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
-
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-Adafruit_SSD1306 Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
-
 #include "OPCConfig.h"
 #include "OPCApp.h"
+#include "OPCLCD.h"
 
 /*
   Example of BH1750 library usage.
@@ -94,6 +83,8 @@ int StepsRequired;
 Stepper HorizStepper(STEPS_PER_REV, 30, 32, 31, 33);
 Stepper VertStepper(STEPS_PER_REV, 34, 36, 35, 37);
 
+// LCD Display
+OPCLCD Display;
 
 // The application object
 OPCApp TheApplication (&LightMeter, &DefaultConfigurationData);
@@ -122,7 +113,7 @@ void setup() {
   // Shouldn't need this   SPI.begin(18,19,23);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if(!Display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) 
+  if(!Display.Begin()) 
   { 
     // Serial port will tell us what's wrong
     Serial.println(F("LCD initialization failed"));
@@ -130,17 +121,7 @@ void setup() {
   }
 
   // Display system information
-  Display.clearDisplay();
-  Display.setTextSize(1);             // Normal 1:1 pixel scale
-  Display.setTextColor(WHITE);        // Draw white text
-  Display.setCursor(0,0);             // Start at top-left corner
-  Display.println (F("One-pixel Camera:")); 
-  Display.setCursor(0,10);             // Status line
-  Display.setTextSize(2);             
-  Display.display();
-
-  Display.print (OPC_VERSION);
-
+  Display.DisplayBannerLine ("One-pixel Camera:"); 
 
   // Uses the default SCL and SDA pins
   LightMeter.begin();
@@ -149,9 +130,8 @@ void setup() {
   {
      // LCD display error and stop
 //     Display.setTextColor (YELLOW);
-     Display.print (F("SD card failure"));
-     Display.display();
-     Serial.println ("SD Card not working");
+     Display.DisplayHeadingLine ("SD Card Failure");
+    Serial.println (F("SD Card not working"));
 
      for(;;); // Don't proceed, loop forever
   }
@@ -168,20 +148,10 @@ void setup() {
   // Set up limit switches ???
   
   // Home sensor
-  Display.setTextColor (WHITE);
-  Display.print (F("Homing Sensor"));
-  Display.display();
+   Display.DisplayHeadingLine ("Homing Sensor");
   Serial.println (F("Homing Sensor"));
 
   // Move the sensor home
-
-
-  // Update Display
-  Display.fillRect(0,10,20,95,BLACK); // Clear status line
-  Display.setCursor(0,10);             // Status line
-  Display.print (OPC_VERSION);
-  Display.display();
-
   
   Serial.println(F("BH1750 Test begin"));
 
