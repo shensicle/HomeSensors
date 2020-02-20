@@ -19,7 +19,7 @@ class OPCLCD : protected Adafruit_SSD1306
 public:
 	
     OPCLCD ()
-            : Display (LCD_SCREEN_WIDTH, LCDSCREEN_HEIGHT, &Wire, OLED_RESET),
+            : Display (LCD_SCREEN_WIDTH, LCD_SCREEN_HEIGHT, &Wire, OLED_RESET),
             BannerOriginX  (0),
             BannerOriginY ( 0),
             HeaderOriginX  (0),
@@ -28,7 +28,8 @@ public:
             StatusOriginY (40),
             BannerTextSize (2),
             HeaderTextSize (1),
-            StatusTextSize (2);
+            StatusTextSize (2)
+            {};
     
     // Initialize the display and return a flag indicating whether or not
     // initialization was successful
@@ -47,16 +48,18 @@ public:
 	
 protected:
 
-    Adafruit_SSD1306 Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+    Adafruit_SSD1306 Display;
     
     int BannerOriginX, BannerOriginY, HeaderOriginX, HeaderOriginY, StatusOriginX, StatusOriginY,
         BannerTextSize, HeaderTextSize, StatusTextSize;
     
-    // A flag which, when set, indicates that the LCD hardware has initialized successfully
-    bool IsInitialized = false;
-    
-    void ClearStatusArea();
-    	
+	// Helper to print a single line of text
+	void DisplayTextLine (char* theText,
+	                      int   textSize,
+	                      int   textColour,
+	                      int   x,
+	                      int   y);
+
 };
 
 #endif

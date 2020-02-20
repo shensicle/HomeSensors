@@ -1,11 +1,5 @@
 #include "OPCLCD.h"
 
-// ---------------------------------------------------------------------------
-// Constructor - have to do everything in Begin(), which 
-// must be called after Wire (I2C) is started
-OPCLCD::OPCLCD ()
-{
-}
 
 // ---------------------------------------------------------------------------
 bool OPCLCD::Begin (void)
