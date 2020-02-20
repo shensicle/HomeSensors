@@ -21,7 +21,7 @@ public:
     OPCLCD ()
             : Display (LCD_SCREEN_WIDTH, LCDSCREEN_HEIGHT, &Wire, OLED_RESET),
             BannerOriginX  (0),
-            BannerOriginY (10),
+            BannerOriginY ( 0),
             HeaderOriginX  (0),
             HeaderOriginY (30),
             StatusOriginX  (0),
@@ -30,7 +30,9 @@ public:
             HeaderTextSize (1),
             StatusTextSize (2);
     
-    bool DisplayIsInitialized (void) { return IsInitialized; }
+    // Initialize the display and return a flag indicating whether or not
+    // initialization was successful
+    bool Begin (void);
     
     // Banner text goes at the top of the display
     void DisplayBannerLine (char* theTitle);
