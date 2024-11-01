@@ -1,19 +1,20 @@
 #include <ESP8266WiFi.h>
-
 #include "IFTTTMessage.h"
 
 #include "WaterSensor.h"
+#include "TemperatureSensor.h"
+#include "CheckIn.h"
 #include "SensorConfigDefs.h"
 #include "SensorConfig.h"
 #include "SensorSerialInterface.h"
 #include "SimpleLED.h"
 
-#define FIRMWARE_VERSION "V1.1"
+#define FIRMWARE_VERSION "V1.3"
 
 // Constants we use in the loop() method to serivce hardware at different intervals
 unsigned int DelayPerLoop         = 50;  // milliseconds - has to be fast enough for terminal interface
 const unsigned int WaterSensorUpdateInterval = 10000;  // check water sensor every 10 seconds
-const unsigned int TempSensorUpdateCount  = 10000;  // check temperature sensor every 10 seconds
+const unsigned int TemperatureSensorUpdateInterval  = 10000;  // check temperature sensor every 10 seconds
 
 // Object to manage the onboard LED
 SimpleLED TheLED (LED_BUILTIN, false, DelayPerLoop, 500); // FLash LED every 500 ms
@@ -40,6 +41,23 @@ WaterSensorClass TheWaterSensor (WaterSensorPin,
                                  WaterSensorUpdateInterval, 
                                  &IFTTTSender,
                                  &TheConfiguration);
+
+// Temperature/Humidity sensor stuff
+const int  TemperatureSensorPin  = 4;        // Digital IO pin connected sensor
+TemperatureSensorClass TheTemperatureSensor (TemperatureSensorPin, 
+                                 DelayPerLoop, 
+                                 TemperatureSensorUpdateInterval, 
+                                 &IFTTTSender,
+                                 &TheConfiguration); 
+
+// Daily check in
+const unsigned long defaultCheckInInterval = DEFAULT_CHECK_IN_MINUTES * 60 * 1000;
+CheckInClass TheCheckIn (DelayPerLoop, 
+                         defaultCheckInInterval, 
+                         &IFTTTSender,
+                         &TheConfiguration,
+                         &TheTemperatureSensor,
+                         &TheWaterSensor);
 
 // Buzzer stuff
 //const int TheBuzzerPin = D4;          // Digital IO pin for buzzer
@@ -72,6 +90,7 @@ void setup() {
     // We can now initialize fields to be sent to IFTTT that were in the personality
     IFTTTSender.Initialize (TheConfiguration.GetIFTTTKey(), TheConfiguration.GetUUID());
 
+
    // And if we have a buzzer, set it up too
 // if (TheConfiguration.HasBuzzer())
 //     pinMode(TheBuzzerPin, OUTPUT);
@@ -85,6 +104,9 @@ void setup() {
         IFTTTSender.Send ("Device startup");
         StartupMessageSent = true;           // don't want to do this again until next power up
     }
+
+    // Now that the configuration is loaded, we can update interval for check in
+    TheCheckIn.SetUpdateInterval((unsigned long)TheConfiguration.GetCheckInMinutes()*60*1000);
   }
 
   else
@@ -106,7 +128,7 @@ void loop()
   // Check the serial interface for a complete command and, if there is one, execute it
   TheSerialInterface.Update();
 
-  // If our configuration is not valid, we an't do much except wait for one on the terminal interface
+  // If our configuration is not valid, we can't do much except wait for one on the terminal interface
   if (ConfigurationIsValid == true)
   {
       // If  we're not connected to Wifi ...
@@ -129,8 +151,11 @@ void loop()
         if (TheConfiguration.HasWaterSensor())
           TheWaterSensor.Service();
 
-       // if (TheConfiguration.HasTemperatureSensor())
-          //TheTemperatureSensor.Service();
+        if (TheConfiguration.HasTemperatureSensor())
+          TheTemperatureSensor.Service();
+
+         if (TheConfiguration.CheckIn())
+          TheCheckIn.Service();
       }
   }
   

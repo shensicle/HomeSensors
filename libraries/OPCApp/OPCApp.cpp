@@ -206,6 +206,7 @@ bool OPCApp::WriteImageFileHeader(void)
 // Move the sensor to the first pixel position of the image
 void OPCApp::MoveSensorHome (void)
 {
+/*
 	HorizMotor.setSpeed(10);    	
     VertMotor.setSpeed(10);
 
@@ -246,6 +247,7 @@ void OPCApp::MoveSensorHome (void)
    	
     HorizMotor.setSpeed(ScanSpeed);
     VertMotor.setSpeed(ScanSpeed);
+    */
 }
 
 // -----------------------------------------------------------------------------		
@@ -271,10 +273,10 @@ void OPCApp::CaptureTask (void)
 	
 	// Read sensor
 	unsigned short lux = TheLightMeter->GetLightIntensity();
-//	Serial.print ("Read "); Serial.println(lux);
+	Serial.print ("Read "); Serial.println(lux);
 		
 	// Save sensor value
-	ImageFile.write((char*)&lux, sizeof(lux));
+	ImageFile.write((uint8_t*)&lux, sizeof(lux));
 
 	// If we are currently on an even-numbered row
 	if ((NextRow % 2) == 0)
@@ -290,11 +292,11 @@ void OPCApp::CaptureTask (void)
 	        
 	        // Move to the next row
 	        NextRow ++;
-	        VertMotor.step (StepsPerRow);
+//	        VertMotor.step (StepsPerRow);
 	    }
 	    else
 	    {	
-	    	HorizMotor.step (StepsPerColumn);
+//	    	HorizMotor.step (StepsPerColumn);
 	    }
 	}
 	else      // we are currently on an odd-numbered row
@@ -303,12 +305,12 @@ void OPCApp::CaptureTask (void)
 	    {
 	        // We're at the right column - advance to the next row
 	        NextRow++;
-	        VertMotor.step (StepsPerRow);
+//	        VertMotor.step (StepsPerRow);
 	    }
 	    else
 	    {
 	        NextColumn --;
-	        HorizMotor.step (-StepsPerColumn);
+//	        HorizMotor.step (-StepsPerColumn);
 
 	    }
 	}
